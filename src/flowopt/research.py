@@ -8,7 +8,7 @@ approaches for the task rather than only on what the model already carries in it
 weights. The notes are saved with the run so a reader can see them too.
 
 Like the designer, the agent runs in a SEPARATE PROCESS
-(`workflow_optimizer.proposer`) — see `designer.py` for why a subprocess.
+(`flowopt.proposer`) — see `designer.py` for why a subprocess.
 """
 import json
 import pathlib

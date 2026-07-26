@@ -5,7 +5,7 @@ Run from the agent's working directory, which holds `run_config.yaml`,
 `task_spec.json` and `train_task.json` — the examples the design agent may
 see, disjoint from the dev split the search scores. This is a thin wrapper: the runtime,
 metering and grading are the SAME code the final search uses
-(`workflow_optimizer.runtime`), so a dev number here means what it means there.
+(`flowopt.runtime`), so a dev number here means what it means there.
 
     python eval_candidate.py <candidate.py>
 """
@@ -13,12 +13,12 @@ import json
 import os
 import sys
 
-if os.environ.get("WORKFLOW_OPTIMIZER_SRC"):    # set when the search spawns the agent
-    sys.path.insert(0, os.environ["WORKFLOW_OPTIMIZER_SRC"])
+if os.environ.get("FLOWOPT_SRC"):    # set when the search spawns the agent
+    sys.path.insert(0, os.environ["FLOWOPT_SRC"])
 
-from workflow_optimizer.config import load_resolved    # noqa: E402
-from workflow_optimizer.grading import Grader          # noqa: E402
-from workflow_optimizer.session import Session         # noqa: E402
+from flowopt.config import load_resolved    # noqa: E402
+from flowopt.grading import Grader          # noqa: E402
+from flowopt.session import Session         # noqa: E402
 
 
 def main() -> None:

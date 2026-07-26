@@ -1,7 +1,7 @@
 """Optimize a workflow for routerllm's ifeval task and report it against that
 repo's recorded baselines.
 
-Everything task-agnostic comes from `workflow_optimizer`; everything specific to this
+Everything task-agnostic comes from `flowopt`; everything specific to this
 comparison is in `config/task/ifeval.yaml` (the task, its grader, a tighter
 per-query budget) and in the reporting below.
 
@@ -18,8 +18,8 @@ import json
 import pathlib
 import time
 
-from workflow_optimizer import Session, analysis
-from workflow_optimizer.optimizer import optimize
+from flowopt import Session, analysis
+from flowopt.optimizer import optimize
 
 HERE = pathlib.Path(__file__).parent
 

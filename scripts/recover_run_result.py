@@ -19,9 +19,9 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 
-from workflow_optimizer import runstore              # noqa: E402
-from workflow_optimizer.pareto import pareto_front   # noqa: E402
-from workflow_optimizer.runtime import SplitScore    # noqa: E402
+from flowopt import runstore              # noqa: E402
+from flowopt.pareto import pareto_front   # noqa: E402
+from flowopt.runtime import SplitScore    # noqa: E402
 
 
 def rebuild(run_id: str) -> dict:

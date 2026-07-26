@@ -9,9 +9,9 @@ import sys
 
 import pytest
 
-from workflow_optimizer import costs, runstore
-from workflow_optimizer.config import load_config, load_resolved
-from workflow_optimizer.dashboard import server
+from flowopt import costs, runstore
+from flowopt.config import load_config, load_resolved
+from flowopt.dashboard import server
 
 
 @pytest.fixture
@@ -438,9 +438,9 @@ def test_an_estimate_refuses_the_same_things_a_run_would(runs_dir):
 def test_partial_results_are_written_when_a_run_is_cut_short(a_run, monkeypatch):
     """A stopped ARC run once discarded six scored candidates and ~$260 of work,
     because results were only written after the very last step."""
-    from workflow_optimizer.dashboard import runner
-    from workflow_optimizer.optimizer import Candidate, Search
-    from workflow_optimizer.runtime import SplitScore
+    from flowopt.dashboard import runner
+    from flowopt.optimizer import Candidate, Search
+    from flowopt.runtime import SplitScore
 
     search = Search(archive=[
         Candidate("H", "one call", "def solve(q, m): pass", dev=SplitScore("H", 0.4, 0.01)),
@@ -458,7 +458,7 @@ def test_partial_results_are_written_when_a_run_is_cut_short(a_run, monkeypatch)
 def test_a_run_whose_config_cannot_load_is_marked_failed(a_run):
     """`cfg` used to be bound inside the try, so a config that failed to load
     crashed the failure handler itself and left the run "running" forever."""
-    from workflow_optimizer.dashboard import runner
+    from flowopt.dashboard import runner
 
     (runstore.run_dir(a_run.run_id) / "config.yaml").write_text("{ not yaml [")
     assert runner.main(a_run.run_id) == 1
@@ -468,8 +468,8 @@ def test_a_run_whose_config_cannot_load_is_marked_failed(a_run):
 
 
 def test_writing_results_for_an_empty_search_is_a_no_op(a_run):
-    from workflow_optimizer.dashboard import runner
-    from workflow_optimizer.optimizer import Search
+    from flowopt.dashboard import runner
+    from flowopt.optimizer import Search
 
     cfg = load_resolved(runstore.run_dir(a_run.run_id) / "config.yaml")
     assert runner._write_result(a_run.run_id, cfg, Search()) == 0
@@ -481,7 +481,7 @@ def test_the_agent_cost_line_matches_what_the_proposer_prints():
     """The design agent's spend crosses a process boundary as a log line, so the
     two sides are only connected by this format. Nothing else would notice if
     one drifted — the estimator would just silently keep using its default."""
-    from workflow_optimizer.designer import AGENT_COST
+    from flowopt.designer import AGENT_COST
 
     # built exactly as proposer.py builds it
     cost, turns = 1.2345, 37
@@ -494,7 +494,7 @@ def test_the_agent_cost_line_matches_what_the_proposer_prints():
 
 
 def test_the_agent_cost_line_is_found_amid_other_output():
-    from workflow_optimizer.designer import AGENT_COST
+    from flowopt.designer import AGENT_COST
     assert AGENT_COST.search("  [tool] Bash") is None
     assert AGENT_COST.search("[agent finished: success]") is None
     assert AGENT_COST.search("[agent cost: $0.0500 over 3 turns]").group(1) == "0.0500"
@@ -525,11 +525,11 @@ def test_cost_per_query_is_not_borrowed_between_tasks():
 def test_the_designer_is_told_the_cost_target():
     """The budget used to filter only the final recommendation, so the agent could
     spend a whole search designing workflows nobody would pick."""
-    from workflow_optimizer.designer import _round_prompt
+    from flowopt.designer import _round_prompt
 
     cfg = load_config("gsm8k", ["report.max_cost_per_query=0.004"])
-    from workflow_optimizer.analysis import Benchmark, TaskAnalysis
-    from workflow_optimizer.grading import Grader
+    from flowopt.analysis import Benchmark, TaskAnalysis
+    from flowopt.grading import Grader
     benchmark = Benchmark(
         analysis=TaskAnalysis(description="Add numbers.", check_type="numeric",
                               judge_rubric="", answer_examples=["5"]),
@@ -551,14 +551,14 @@ class ProbeClient:
         self.calls = 0
 
     def call(self, model, prompt, system=None, tools=None, effort=None, schema=None):
-        from workflow_optimizer.client import ApiResponse
+        from flowopt.client import ApiResponse
         self.calls += 1
         return ApiResponse(text=json.dumps({"answer": self.answer}), usage=dict(self.usage))
 
 
 def test_a_probe_measures_tokens_and_whether_the_cheap_model_can_do_it():
-    from workflow_optimizer.grading import Grader
-    from workflow_optimizer.models import ModelCatalog
+    from flowopt.grading import Grader
+    from flowopt.models import ModelCatalog
 
     cfg = load_config("gsm8k")
     catalog = ModelCatalog.from_config(cfg)
@@ -573,8 +573,8 @@ def test_a_probe_measures_tokens_and_whether_the_cheap_model_can_do_it():
 
 
 def test_a_probe_that_cannot_reach_the_api_degrades_instead_of_breaking():
-    from workflow_optimizer.grading import Grader
-    from workflow_optimizer.models import ModelCatalog
+    from flowopt.grading import Grader
+    from flowopt.models import ModelCatalog
 
     class Broken(ProbeClient):
         def call(self, *a, **k):
@@ -589,7 +589,7 @@ def test_a_probe_that_cannot_reach_the_api_degrades_instead_of_breaking():
 def test_a_failing_cheap_model_predicts_an_expensive_search():
     """The probe's real job: if the cheap tier scores ~0 the designer escalates,
     which is why ARC cost ~60x its own baseline while ifeval stayed cheap."""
-    from workflow_optimizer.models import ModelCatalog
+    from flowopt.models import ModelCatalog
 
     catalog = ModelCatalog.from_config(load_config("gsm8k"))
     same_tokens = dict(input_tokens=5000, output_tokens=1000, output_tokens_high=1000, n=3)

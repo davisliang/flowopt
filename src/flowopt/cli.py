@@ -1,7 +1,7 @@
-"""`workflow-optimizer` — run the whole pipeline for one task.
+"""`flowopt` — run the whole pipeline for one task.
 
-    workflow-optimizer --task gsm8k                     # a file under config/task/
-    workflow-optimizer --task gsm8k designer.rounds=1   # override any config key
+    flowopt --task gsm8k                     # a file under config/task/
+    flowopt --task gsm8k designer.rounds=1   # override any config key
 """
 import argparse
 import functools

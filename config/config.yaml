@@ -1,5 +1,5 @@
 # Defaults for every run. Override a field on the command line with a dotted path
-# (`workflow-optimizer --task gsm8k designer.rounds=1 runtime.concurrency=4`), or
+# (`flowopt --task gsm8k designer.rounds=1 runtime.concurrency=4`), or
 # from a task file under config/task/.
 
 # The models the optimizer may use, cheapest -> most expensive. This list is the
@@ -41,7 +41,7 @@ call:
 
 # The per-query budget a candidate workflow runs under. (Candidates always run
 # with a restricted import list — see compile_solve in
-# src/workflow_optimizer/runtime.py.)
+# src/flowopt/runtime.py.)
 runtime:
   max_model_calls: 24      # model calls one query may make
   max_tokens: 120000       # tokens one query may spend

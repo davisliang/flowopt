@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""The workflow-optimizer UI: a stdlib HTTP server over the run directory.
+"""The flowopt UI: a stdlib HTTP server over the run directory.
 
 Serves one static page plus a small JSON API. Every read comes off disk, and
 every search runs in its own subprocess, so the server keeps no state: restart
 it mid-search and the page picks up exactly where it was.
 
 Usage:
-    uv run workflow-optimizer-ui                 # http://127.0.0.1:8770
-    uv run workflow-optimizer-ui --port 9000
+    uv run flowopt-ui                 # http://127.0.0.1:8770
+    uv run flowopt-ui --port 9000
 
 Binds to localhost by default. Starting a search spends real money, so anything
 that can reach this port can spend it.
@@ -221,7 +221,7 @@ def _spawn_runner(run_id: str) -> None:
         run_id: The run to execute.
     """
     process = subprocess.Popen(
-        [sys.executable, "-u", "-m", "workflow_optimizer.dashboard.runner", run_id],
+        [sys.executable, "-u", "-m", "flowopt.dashboard.runner", run_id],
         cwd=ROOT,
         env={**os.environ, "PYTHONPATH": str(ROOT / "src")},
         stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT,
@@ -804,7 +804,7 @@ def main() -> None:
     runstore.RUNS_DIR.mkdir(parents=True, exist_ok=True)
     url = f"http://{args.host}:{args.port}"
     server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"workflow-optimizer UI → {url}")
+    print(f"flowopt UI → {url}")
     print("Starting a search spends real money. Ctrl-C to stop the server.")
     if args.open:
         webbrowser.open(url)

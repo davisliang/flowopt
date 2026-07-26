@@ -66,7 +66,7 @@ the run looks hung when it isn't.
 
 The task itself — description, data, grader, and a tighter per-query budget than
 the default — is `config/task/ifeval.yaml`; this script only adds the reporting
-against routerllm's recorded baselines. Everything else comes from `workflow_optimizer`.
+against routerllm's recorded baselines. Everything else comes from `flowopt`.
 
 Paths to the routerllm checkout are absolute in `grader.py` — adjust if the
 sibling repo moves.

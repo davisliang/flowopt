@@ -1,4 +1,4 @@
-# Workflow Optimizer
+# flowopt
 
 Automatically find the best **LLM workflow** for a task under a budget. Instead of
 hand-writing prompting strategies, a design agent **writes workflow programs** and
@@ -8,16 +8,16 @@ hands you the accuracy/cost **Pareto frontier** to pick from.
 ```sh
 export ANTHROPIC_API_KEY=...
 uv sync
-uv run workflow-optimizer-ui --open                        # the UI, at :8770
-uv run workflow-optimizer --task gsm8k                     # or headless
-uv run workflow-optimizer --task gsm8k designer.rounds=1   # override any config key
+uv run flowopt-ui --open                        # the UI, at :8770
+uv run flowopt --task gsm8k                     # or headless
+uv run flowopt --task gsm8k designer.rounds=1   # override any config key
 ```
 
 In Python, `Session` is the entry point — it holds the config, the model catalog
 derived from it, and the client:
 
 ```python
-from workflow_optimizer import Session, analysis, optimize, report
+from flowopt import Session, analysis, optimize, report
 
 session = Session.load("gsm8k", ["designer.rounds=1"])
 benchmark = analysis.build_benchmark(session.cfg, session.client)
@@ -27,7 +27,7 @@ report.summarize(search, session.cfg)
 
 ## The UI
 
-`uv run workflow-optimizer-ui` serves a page on `127.0.0.1:8770` that starts
+`uv run flowopt-ui` serves a page on `127.0.0.1:8770` that starts
 searches, watches them run, and compares what they found:
 
 - **Cost estimate before you commit** — the form estimates what a search will
@@ -242,7 +242,7 @@ skills/                 what the design agent is taught
   workflow-eval/        the dev evaluator (a wrapper over the same runtime)
   workflow-naming/      naming workflows by structure, so results tables compare
   workflow-skills/      (opt-in) read/write run-scoped skill notes + callable operators
-src/workflow_optimizer/
+src/flowopt/
   config.py             typed config schema + loading/overrides
   session.py            Session: config + catalog + client, wired once
   models.py             ModelCatalog: ids, prices, capabilities
@@ -259,7 +259,7 @@ src/workflow_optimizer/
   pareto.py             frontier + the two constrained picks
   report.py             frontier table, plot, search JSON
   runstore.py           one run's state on disk: status, events, log, result
-  cli.py                `workflow-optimizer`
+  cli.py                `flowopt`
   dashboard/            the UI: stdlib server, runner subprocess, one static page
 runs/<run_id>/          per-run state the UI reads (gitignored)
 experiments/            benchmark comparisons (see routerllm_ifeval/)
@@ -280,10 +280,10 @@ data:
   n_examples: 120
 ```
 
-Override any key from the command line — `uv run workflow-optimizer --task gsm8k
+Override any key from the command line — `uv run flowopt --task gsm8k
 designer.rounds=1 runtime.concurrency=4 report.max_cost_per_query=0.001` — or in
 Python via `Session.load("gsm8k", [...])`. The schema in
-`src/workflow_optimizer/config.py` is typed, so a misspelled key fails at load time
+`src/flowopt/config.py` is typed, so a misspelled key fails at load time
 instead of being silently ignored.
 
 Optional task fields: `dataset` (a `.jsonl` of `{"question", "answer"}`), `grader`
@@ -295,7 +295,7 @@ criteria, still calibrated before use, instead of letting the analyzer infer one
 ## The metered runtime
 
 Generated programs are model-written code, so each one runs through
-`workflow_optimizer.runtime`:
+`flowopt.runtime`:
 
 - **Metered** — every `call_model()` call adds to a per-query token and cost tally.
 - **Capped** — `runtime.max_model_calls` and `runtime.max_tokens` per query; a program

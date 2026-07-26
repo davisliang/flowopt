@@ -1,10 +1,10 @@
-"""workflow_optimizer — find the best LLM workflow for a task under a budget.
+"""flowopt — find the best LLM workflow for a task under a budget.
 
 A workflow is a Python program `solve(question, call_model) -> answer`. A design
 agent writes candidates, each is metered and graded on real examples, and the
 ones on the accuracy/cost Pareto frontier are what you choose between.
 
-    from workflow_optimizer import Session, analysis, optimize, report
+    from flowopt import Session, analysis, optimize, report
 
     session = Session.load("gsm8k")
     benchmark = analysis.build_benchmark(session.cfg, session.client)

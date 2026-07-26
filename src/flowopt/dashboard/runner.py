@@ -6,7 +6,7 @@ module is what the server spawns, and everything it learns it writes to the run
 directory — status, milestones, raw log, final result — so the UI reads state
 from disk rather than from server memory.
 
-    python -m workflow_optimizer.dashboard.runner <run_id>
+    python -m flowopt.dashboard.runner <run_id>
 """
 import json
 import signal
@@ -198,6 +198,6 @@ def _save_on_exit(run_id: str, cfg, search, log) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("usage: python -m workflow_optimizer.dashboard.runner <run_id>", file=sys.stderr)
+        print("usage: python -m flowopt.dashboard.runner <run_id>", file=sys.stderr)
         sys.exit(2)
     sys.exit(main(sys.argv[1]))

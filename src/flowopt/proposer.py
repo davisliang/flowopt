@@ -4,7 +4,7 @@ Run from the agent's scratch directory (its cwd): it reads `proposer_config.json
 from there and drives a Claude Agent SDK session. The agent — via the skills
 staged under `./.claude/skills/` — writes its picks to `programs.json`.
 
-    python -m workflow_optimizer.proposer
+    python -m flowopt.proposer
 """
 import asyncio
 import json

@@ -6,7 +6,7 @@ later rounds it is shown every workflow tried so far — code, dev scores, and t
 examples each got wrong — and asked to design new ones that extend the
 accuracy/cost frontier.
 
-The agent runs in a SEPARATE PROCESS (`workflow_optimizer.proposer`). A notebook
+The agent runs in a SEPARATE PROCESS (`flowopt.proposer`). A notebook
 kernel that has called `nest_asyncio.apply()` monkeypatches `asyncio` for the
 whole session and breaks `asyncio.run`, even from a worker thread; a subprocess
 is immune.
@@ -151,7 +151,7 @@ def run_agent(agent_dir: pathlib.Path, log=print, on_cost=None) -> None:
     """Run the proposer subprocess in `agent_dir`, streaming its output to `log`.
 
     Shared by the research and design phases: both drive a Claude Agent SDK
-    session the same way — spawn `workflow_optimizer.proposer` in the agent's
+    session the same way — spawn `flowopt.proposer` in the agent's
     scratch directory (its cwd), echo every line it prints, and report what the
     agent billed through the SDK. The caller stages the directory first and reads
     whatever the agent wrote afterward.
@@ -163,13 +163,13 @@ def run_agent(agent_dir: pathlib.Path, log=print, on_cost=None) -> None:
             That goes through the SDK rather than our meter, so this is the only
             place it can be seen.
     """
-    # The agent shells out to the eval skill, which imports workflow_optimizer;
+    # The agent shells out to the eval skill, which imports flowopt;
     # both variables keep that working even if `python` on its PATH is not this
     # interpreter.
     src = str(ROOT / "src")
-    env = {**os.environ, "PYTHONPATH": src, "WORKFLOW_OPTIMIZER_SRC": src}
+    env = {**os.environ, "PYTHONPATH": src, "FLOWOPT_SRC": src}
     process = subprocess.Popen(
-        [sys.executable, "-u", "-m", "workflow_optimizer.proposer"],
+        [sys.executable, "-u", "-m", "flowopt.proposer"],
         cwd=agent_dir, env=env,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
     for line in process.stdout:

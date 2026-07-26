@@ -12,18 +12,18 @@ from types import SimpleNamespace
 
 import pytest
 
-from workflow_optimizer import analysis, prompts
-from workflow_optimizer.analysis import Benchmark, TaskAnalysis
-from workflow_optimizer.config import load_config, load_resolved
-from workflow_optimizer.designer import _round_prompt, _stage_agent_dir, summarize_archive
-from workflow_optimizer.grading import Grader, as_number, extract_last_number
-from workflow_optimizer.client import ApiResponse, ModelClient
-from workflow_optimizer.models import ModelCatalog
-from workflow_optimizer.optimizer import DEV, TEST, Candidate
-from workflow_optimizer.pareto import best_under_budget, cheapest_above_accuracy, pareto_front
-from workflow_optimizer.paths import ROOT, SKILLS_DIR
-from workflow_optimizer.runtime import Evaluator, SplitScore, compile_solve, unwrap_answer
-from workflow_optimizer.session import Session
+from flowopt import analysis, prompts
+from flowopt.analysis import Benchmark, TaskAnalysis
+from flowopt.config import load_config, load_resolved
+from flowopt.designer import _round_prompt, _stage_agent_dir, summarize_archive
+from flowopt.grading import Grader, as_number, extract_last_number
+from flowopt.client import ApiResponse, ModelClient
+from flowopt.models import ModelCatalog
+from flowopt.optimizer import DEV, TEST, Candidate
+from flowopt.pareto import best_under_budget, cheapest_above_accuracy, pareto_front
+from flowopt.paths import ROOT, SKILLS_DIR
+from flowopt.runtime import Evaluator, SplitScore, compile_solve, unwrap_answer
+from flowopt.session import Session
 
 SRC = ROOT / "src"
 
@@ -189,7 +189,7 @@ def test_the_two_constrained_picks():
 
 
 def test_a_search_reports_its_frontier_on_test_scores():
-    from workflow_optimizer.optimizer import Search
+    from flowopt.optimizer import Search
 
     # B is dominated on dev but not on test — the reported frontier must follow test
     candidates = [
@@ -463,7 +463,7 @@ def test_working_skills_off_by_default_stages_nothing_extra(cfg, tmp_path):
 
 
 def test_working_skills_are_staged_for_reading_and_collected_after(tmp_path):
-    from workflow_optimizer.designer import _collect_skills
+    from flowopt.designer import _collect_skills
     cfg = load_config("gsm8k", ["designer.working_skills=true"])
     run_skills = tmp_path / "run_skills"
     (run_skills / "prior").mkdir(parents=True)
@@ -514,7 +514,7 @@ def test_round_one_asks_for_diversity_and_later_rounds_extend_the_frontier(cfg):
 def test_tool_log_lines_say_what_the_tool_did():
     # "[tool] Bash" tells a reader nothing; the command is the content
     import os as _os
-    from workflow_optimizer.proposer import _tool_line
+    from flowopt.proposer import _tool_line
 
     bash = SimpleNamespace(name="Bash",
                            input={"command": "python eval_candidate.py c1.py\n",
@@ -567,7 +567,7 @@ def test_a_saved_judge_rubric_survives_without_recalibration(cfg, catalog):
 
 
 def test_rebuild_search_restores_the_archive_and_its_failures():
-    from workflow_optimizer.optimizer import rebuild_search
+    from flowopt.optimizer import rebuild_search
 
     result = {"candidates": [
         {"name": "H", "description": "one call", "code": "code-h",
@@ -590,7 +590,7 @@ def test_rebuild_search_restores_the_archive_and_its_failures():
 
 
 def test_ranking_keeps_carried_test_scores_instead_of_rebuying_them(catalog):
-    from workflow_optimizer.optimizer import Search, optimize
+    from flowopt.optimizer import Search, optimize
 
     cfg = load_config("gsm8k", ["designer.rounds=0", "designer.research=false"])
     carried = Candidate("A", "", GOOD["code"], dev=SplitScore("A", 0.9, 0.001),
@@ -631,7 +631,7 @@ def test_research_notes_are_handed_to_the_design_agent(cfg):
 
 
 def test_research_collect_notes_reads_the_file_or_returns_empty(tmp_path):
-    from workflow_optimizer.research import _collect_notes
+    from flowopt.research import _collect_notes
     assert _collect_notes(tmp_path) == ""             # no file yet -> "", not an error
     (tmp_path / "research_notes.md").write_text("# findings\nuse a cheap→opus cascade")
     assert "cascade" in _collect_notes(tmp_path)
@@ -713,7 +713,7 @@ def test_the_judge_is_not_probed(monkeypatch):
 def test_n_examples_caps_a_loaded_dataset():
     """Asking for 40 against a 200-row benchmark used to run all 200 — and the
     cost estimate, which sizes itself from n_examples, understated it 5x."""
-    from workflow_optimizer import dataset as datasets
+    from flowopt import dataset as datasets
 
     data = [{"question": f"q{i}", "answer": str(i)} for i in range(200)]
     taken = datasets.take(data, 40, log=lambda *a: None)
@@ -722,7 +722,7 @@ def test_n_examples_caps_a_loaded_dataset():
 
 
 def test_taking_is_deterministic_so_two_runs_are_comparable():
-    from workflow_optimizer import dataset as datasets
+    from flowopt import dataset as datasets
 
     data = [{"question": f"q{i}", "answer": str(i)} for i in range(200)]
     first = datasets.take(data, 40, log=lambda *a: None)
@@ -731,7 +731,7 @@ def test_taking_is_deterministic_so_two_runs_are_comparable():
 
 
 def test_asking_for_more_than_exists_keeps_everything():
-    from workflow_optimizer import dataset as datasets
+    from flowopt import dataset as datasets
 
     data = [{"question": f"q{i}", "answer": str(i)} for i in range(10)]
     assert len(datasets.take(data, 40, log=lambda *a: None)) == 10
@@ -742,7 +742,7 @@ def test_asking_for_more_than_exists_keeps_everything():
 def test_a_forbidden_tool_is_rejected_at_the_call_site(cfg, catalog):
     """A closed-book task sets tools=[]; a candidate that still calls web_search
     must fail, not quietly answer another way, or the benchmark isn't closed-book."""
-    from workflow_optimizer.runtime import CallMeter
+    from flowopt.runtime import CallMeter
 
     meter = CallMeter(FakeClient(catalog), catalog.default, 24, 120_000, allowed_tools=[])
     with pytest.raises(RuntimeError) as raised:
@@ -751,7 +751,7 @@ def test_a_forbidden_tool_is_rejected_at_the_call_site(cfg, catalog):
 
 
 def test_an_allowed_tool_passes(cfg, catalog):
-    from workflow_optimizer.runtime import CallMeter
+    from flowopt.runtime import CallMeter
 
     meter = CallMeter(FakeClient(catalog), catalog.default, 24, 120_000,
                       allowed_tools=["code_execution"])
@@ -762,7 +762,7 @@ def test_an_allowed_tool_passes(cfg, catalog):
 def test_web_tools_cannot_combine_with_code_execution(cfg, catalog):
     """The _20260209 web tools run code execution for dynamic filtering, so the
     API forbids a second one alongside — reject it before it 400s a search."""
-    from workflow_optimizer.runtime import CallMeter
+    from flowopt.runtime import CallMeter
 
     meter = CallMeter(FakeClient(catalog), catalog.default, 24, 120_000,
                       allowed_tools=["code_execution", "web_search", "web_fetch"])
@@ -774,7 +774,7 @@ def test_web_tools_cannot_combine_with_code_execution(cfg, catalog):
 
 
 def test_no_allowlist_means_no_restriction(cfg, catalog):
-    from workflow_optimizer.runtime import CallMeter
+    from flowopt.runtime import CallMeter
 
     meter = CallMeter(FakeClient(catalog), catalog.default, 24, 120_000)  # allowed_tools=None
     meter.call_model("q", tools=["web_search"])              # anything goes
