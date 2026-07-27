@@ -360,7 +360,8 @@ def test_benchmarks_are_listed_with_their_metadata():
     assert found["math_500"]["aa_validated"] is True
     assert found["ifeval"]["aa_validated"] is False     # AA runs IFBench, not IFEval
     # partition counts surface for the picker; unallocated benchmarks read zero
-    assert found["gpqa_diamond_gen"]["splits"]["test"] == 25
+    assert found["gpqa_diamond_gen"]["splits"] == {"rows": 198, "train": 64,
+                                                   "val": 32, "test": 102}
     assert found["gpqa_diamond_gen"]["splits"]["train"] > 0
     assert found["arc_agi_2"]["splits"]["test"] == 0
     # the code tasks cannot be graded here, and say so rather than scoring wrongly

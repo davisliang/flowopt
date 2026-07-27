@@ -1,4 +1,6 @@
-# gpqa_diamond_gen — imported from routerllm by scripts/import_routerllm_benchmarks.py
+# gpqa_diamond_gen — full local set, re-partitioned by scripts/resplit_benchmark.py
+# (seed 0). Earlier baselines, if any, were measured on the previous
+# partition and are dropped rather than misreported against these splits.
 name: gpqa_diamond_gen
 description: >-
   Answer a GPQA Diamond graduate-level science multiple-choice question. Answer with the option letter in parentheses, e.g. (C).
@@ -6,25 +8,9 @@ source_dataset: Idavidrein/gpqa
 num_fewshot: 0
 examples: 198
 sampled_from: 198
-routerllm_grader: exact
+grader_label: exact
 grading_supported: true
-# routerllm allocated a holdout for this task; the rows below labeled
-# "split": "test" are the holdout examples present in the export, and the
-# optimizer uses exactly those as its test split — the same examples the
-# baselines were measured on. Partial coverage means the export was itself
-# a sample; zero means the export's doc_ids could not be matched.
-holdout_in_data: 25 of 25
-# Rows labeled train/val carry routerllm's own 80/10/10 partition (via
-# split.json): the optimizer draws its train split from train-labeled rows
-# and its dev split from val-labeled rows, so no example crosses a
-# partition boundary.
-split_labeled: 154 train / 19 val / 25 test
+# Size the run's train/dev/test draws from these partitions when starting a
+# search; blank dev/test in the form take a partition whole.
+split_labeled: 64 train / 32 val / 102 test
 check_type: exact
-# routerllm's holdout numbers, recomputed from joined_14.jsonl.
-# Comparable only if graded the same way — see grading_note.
-baselines:
-  n: 25
-  haiku: 0.76
-  opus: 0.96
-  router: 0.96
-  oracle: 0.96

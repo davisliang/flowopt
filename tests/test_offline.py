@@ -59,18 +59,22 @@ def evaluator(cfg, catalog, grader=None):
 
 # ---- the OpenRouter client --------------------------------------------------
 def _or_response(text="ok", cached=0, finish="stop", cost=None):
-    """A minimal stand-in for an OpenRouter chat completion."""
-    return SimpleNamespace(
-        choices=[SimpleNamespace(
-            message=SimpleNamespace(content=text, annotations=None),
-            finish_reason=finish)],
-        usage=SimpleNamespace(prompt_tokens=100, completion_tokens=10,
-                              prompt_tokens_details=SimpleNamespace(cached_tokens=cached),
-                              cost=cost))
+    """A minimal stand-in for an OpenRouter chat completion STREAM: content
+    chunks, then the usage-bearing final chunk (as `usage: {include: true}`
+    delivers it)."""
+    return [
+        SimpleNamespace(choices=[SimpleNamespace(
+            delta=SimpleNamespace(content=text, annotations=None),
+            finish_reason=finish)], usage=None),
+        SimpleNamespace(choices=[], usage=SimpleNamespace(
+            prompt_tokens=100, completion_tokens=10,
+            prompt_tokens_details=SimpleNamespace(cached_tokens=cached),
+            cost=cost)),
+    ]
 
 
 class FakeOpenRouter:
-    """Serves one canned completion and keeps the request for inspection."""
+    """Serves one canned chunk stream and keeps the request for inspection."""
 
     def __init__(self, response):
         self._response = response
@@ -80,7 +84,7 @@ class FakeOpenRouter:
 
     def create(self, **request):
         self.request = request
-        return self._response
+        return iter(self._response)     # fresh iterator per call, like a real stream
 
 
 def test_calls_go_through_openrouter_with_cached_tokens_carved_out(cfg, catalog):
@@ -93,6 +97,7 @@ def test_calls_go_through_openrouter_with_cached_tokens_carved_out(cfg, catalog)
     assert response.usage == {"input": 70, "output": 10, "cache_write": 0, "cache_read": 30}
     assert response.cost == 0.00123                       # what OpenRouter billed
     assert sdk.request["model"] == "anthropic/claude-sonnet-5"
+    assert sdk.request["stream"] is True                  # replies arrive as chunks
     # OpenRouter server tools, in the tools array
     assert sdk.request["tools"] == [{"type": "openrouter:web_search"},
                                     {"type": "openrouter:web_fetch"}]
@@ -132,6 +137,32 @@ def test_mandatory_reasoning_endpoints_get_a_retry_without_the_field(cfg, catalo
         "google/gemini-3.5-flash-lite", "q")
     assert response.text == "ok"
     assert "reasoning" not in sdk.request["extra_body"]     # retried without it
+
+
+def test_a_broken_stream_is_retried_with_a_fresh_generation(cfg, catalog):
+    # the SDK only retries before the stream opens; a socket that dies
+    # mid-chunks (laptop sleep) must be retried by our client, not scored 0
+    import openai as openai_sdk
+
+    class DropsThenServes(FakeOpenRouter):
+        def __init__(self, response):
+            super().__init__(response)
+            self.calls = 0
+
+        def create(self, **request):
+            self.calls += 1
+            self.request = request
+            if self.calls == 1:
+                def broken():
+                    yield self._response[0]
+                    raise openai_sdk.APIConnectionError(request=None)
+                return broken()
+            return iter(self._response)
+
+    sdk = DropsThenServes(_or_response(text="ok", cost=0.001))
+    response = ModelClient(catalog, cfg.call, client=sdk).call("anthropic/claude-sonnet-5", "q")
+    assert response.text == "ok" and response.cost == 0.001
+    assert sdk.calls == 2
 
 
 def test_effort_passes_through_and_length_is_truncated(cfg, catalog):

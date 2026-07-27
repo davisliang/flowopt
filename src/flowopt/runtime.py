@@ -428,12 +428,29 @@ class Evaluator:
                     f"${record['cost']:.4f} · {time.time() - start:.0f}s{error}")
             return record
 
-        workers = min(self.cfg.concurrency, len(dataset))
-        if workers > 1:
-            with ThreadPoolExecutor(max_workers=workers) as pool:
-                records = list(pool.map(run_one, dataset))
-        else:
-            records = [run_one(item) for item in dataset]
+        # A quiet minute no longer means anything is wedged (streaming detects a
+        # dead socket in ~3 minutes), but say so while a long eval breathes.
+        stop_beat = threading.Event()
+
+        def heartbeat() -> None:
+            while not stop_beat.wait(60):
+                with tick:
+                    k = done
+                if k < len(dataset):
+                    log(f"      … {k}/{len(dataset)} done, {len(dataset) - k} still streaming")
+
+        beat = threading.Thread(target=heartbeat, daemon=True) if log else None
+        if beat:
+            beat.start()
+        try:
+            workers = min(self.cfg.concurrency, len(dataset))
+            if workers > 1:
+                with ThreadPoolExecutor(max_workers=workers) as pool:
+                    records = list(pool.map(run_one, dataset))
+            else:
+                records = [run_one(item) for item in dataset]
+        finally:
+            stop_beat.set()
 
         return SplitScore(
             name=program["name"],

@@ -13,6 +13,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
+import httpx
 import openai
 from pydantic import BaseModel
 
@@ -99,13 +100,18 @@ class ModelClient:
         self.catalog = catalog
         self.cfg = call_cfg
         # Generous retries: a transient upstream overload on one call would
-        # otherwise score that example 0 and understate a candidate. Long
-        # timeout: a max-effort reasoning call against a 64k output ceiling can
-        # far outlive the SDK default.
+        # otherwise score that example 0 and understate a candidate. Responses
+        # are STREAMED, so the timeout that matters is the inter-chunk gap:
+        # OpenRouter sends keepalive comments while a model thinks, which means
+        # a healthy connection is never silent for long — and a socket that
+        # died during a laptop sleep is detected in minutes, not the hour a
+        # whole-call deadline allowed (one slept eval sat wedged for exactly
+        # that reason).
         self.client = client or openai.OpenAI(
             base_url=OPENROUTER_BASE_URL,
             api_key=os.environ["OPENROUTER_API_KEY"],
-            max_retries=8, timeout=3600.0)
+            max_retries=8,
+            timeout=httpx.Timeout(180.0, connect=30.0))
 
     def call(self, model: str, prompt, system: Optional[str] = None,
              tools: Optional[list[str]] = None, effort: Optional[str] = None,
@@ -136,25 +142,64 @@ class ModelClient:
         """
         request = self._request(model, prompt, system, tools, effort, schema)
         try:
-            response = self.client.chat.completions.create(**request)
+            return self._stream(request)
         except openai.BadRequestError as error:
             # Some endpoints cannot have reasoning disabled (Gemini flash-lite,
             # pro serving aliases) and 400 on our default {"effort": "none"}.
             # Drop the reasoning field and let the endpoint run its mandatory
             # default — the billed cost reports what it actually spent.
             if "reasoning" in str(error).lower() and request["extra_body"].pop("reasoning", None):
-                response = self.client.chat.completions.create(**request)
-            else:
-                raise
+                return self._stream(request)
+            raise
 
-        choice = response.choices[0]
-        usage, cost = _usage_of(response)
-        return ApiResponse(
-            text=choice.message.content or "",
-            blocks=list(getattr(choice.message, "annotations", None) or []),
-            usage=usage,
-            truncated=choice.finish_reason == "length",
-            cost=cost)
+    def _stream(self, request) -> ApiResponse:
+        """Issue one request and assemble its streamed reply.
+
+        The SDK only retries failures BEFORE the stream opens; a connection
+        that drops mid-stream raises out of the chunk iterator instead. That
+        is retried here — a fresh generation, honestly re-billed — because a
+        broken stream says nothing about the candidate being evaluated.
+
+        Args:
+            request: `_request` output.
+
+        Returns:
+            The assembled ApiResponse.
+        """
+        failure = None
+        for _ in range(3):
+            try:
+                return self._consume(self.client.chat.completions.create(**request))
+            except openai.APIStatusError:
+                raise                              # a real rejection, not a drop
+            except (openai.APIError, httpx.HTTPError) as error:
+                failure = error
+        raise failure
+
+    def _consume(self, stream) -> ApiResponse:
+        """Fold a chunk stream into one ApiResponse.
+
+        Args:
+            stream: The SDK's chunk iterator.
+
+        Returns:
+            The assembled response. OpenRouter delivers the usage (and billed
+            cost) on the final chunk when `usage: {include: true}` is set.
+        """
+        parts, annotations, finish, usage = [], [], None, None
+        for chunk in stream:
+            if chunk.choices:
+                choice = chunk.choices[0]
+                delta = choice.delta
+                if delta is not None and getattr(delta, "content", None):
+                    parts.append(delta.content)
+                annotations.extend(getattr(delta, "annotations", None) or [])
+                finish = choice.finish_reason or finish
+            if getattr(chunk, "usage", None) is not None:
+                usage = chunk.usage
+        counts, cost = _usage_of(usage)
+        return ApiResponse(text="".join(parts), blocks=annotations,
+                           usage=counts, truncated=finish == "length", cost=cost)
 
     def parse(self, model: str, prompt: str, schema_model: type[BaseModel]) -> BaseModel:
         """Make one structured call and validate the reply into a Pydantic model.
@@ -192,6 +237,7 @@ class ModelClient:
             "model": model,
             "messages": messages,
             "max_tokens": self.cfg.max_output_tokens,
+            "stream": True,
             # extra_body carries OpenRouter's extensions to the OpenAI schema.
             "extra_body": {"usage": {"include": True}},   # report the billed cost
         }
@@ -219,8 +265,8 @@ class ModelClient:
         return request
 
 
-def _usage_of(response) -> tuple[dict, Optional[float]]:
-    """Extract one response's token counts and OpenRouter's billed cost.
+def _usage_of(usage) -> tuple[dict, Optional[float]]:
+    """Extract token counts and OpenRouter's billed cost from a usage object.
 
     OpenRouter counts cached tokens INSIDE prompt_tokens, so they are carved out
     here — the keys below are disjoint and can be priced independently. Cache
@@ -228,13 +274,16 @@ def _usage_of(response) -> tuple[dict, Optional[float]]:
     so "cache_write" is always 0.
 
     Args:
-        response: An OpenAI SDK ChatCompletion from OpenRouter.
+        usage: The usage object from the final stream chunk, or None if the
+            stream ended without one (counts then read zero and cost None, so
+            the caller's catalog fallback prices what it can).
 
     Returns:
         (counts keyed "input"/"output"/"cache_write"/"cache_read", billed USD
         or None).
     """
-    usage = response.usage
+    if usage is None:
+        return {"input": 0, "output": 0, "cache_write": 0, "cache_read": 0}, None
     details = getattr(usage, "prompt_tokens_details", None)
     cached = (getattr(details, "cached_tokens", 0) or 0) if details else 0
     counts = {
