@@ -58,7 +58,7 @@ not committed here, so nothing runs until this has been done once:
 
 Then:
 
-    ANTHROPIC_API_KEY=... uv run python -u run_ifeval.py --rounds 3
+    OPENROUTER_API_KEY=... uv run python -u run_ifeval.py --rounds 3
     uv run python -u run_ifeval.py --smoke # 8 examples, 1 round, proves the wiring
 
 Use `-u`: the design agent's subprocess output is block-buffered otherwise and

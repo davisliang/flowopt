@@ -20,6 +20,6 @@ task:
     - "$27.83 billion"
     - "Goldman Sachs"
 runtime:
-  tools: [web_search, web_fetch, code_execution]   # retrieve per hop, then aggregate
+  tools: [web_search, web_fetch]   # retrieve per hop, then aggregate
 data:
   n_examples: 30     # use all of them (30 multi-hop questions)

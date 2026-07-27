@@ -13,8 +13,8 @@ task:
   judge_rubric: >-
     The reference answer gives the correct value for each entity the question asks about (a set of entity -> value facts). Score how completely and correctly the candidate covers those facts, 0 to 100, in proportion to the fraction of the reference's entities for which the candidate gives the correct value: all correct = 100, half correct = about 50, none = 0. Judge factual content, not wording — ignore formatting, order, phrasing, and units, and count a numeric value as correct if it matches the reference within minor rounding (e.g. 1.03 billion vs 1.027 billion). A missing entity, a wrong value, or a fabricated entity earns no credit for that entity; do not reward fluent but incomplete answers.
 runtime:
-  tools: [web_search, web_fetch, code_execution]   # open-book: retrieve + aggregate
+  tools: [web_search, web_fetch]   # open-book: retrieve + aggregate
 data:
   n_examples: 40     # 24 dev / 16 test at dev_fraction 0.6
 judge:
-  model: claude-sonnet-5   # a stronger judge than the haiku default for factuality
+  model: anthropic/claude-sonnet-5   # a stronger judge than the haiku default for factuality

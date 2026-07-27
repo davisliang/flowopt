@@ -36,7 +36,7 @@ class Session:
             The session.
 
         Raises:
-            RuntimeError: ANTHROPIC_API_KEY is unset.
+            RuntimeError: OPENROUTER_API_KEY is unset.
         """
         return cls(cfg=cfg, client=ModelClient(ModelCatalog.from_config(cfg), cfg.call))
 

@@ -167,6 +167,9 @@ let candView = "code", traceCache = null, logLines = 400;   // verbose-view stat
 let view = "runs", newMode = "benchmark", uploaded = null, benchmarks = [];
 let workflowTools = [], toolChoice = null;   // null = use the task default
 let extraSkills = null, workingSkills = null;   // extras beyond the core set; null = untouched
+let modelChoice = null, designerChoice = null;  // null = the config defaults
+let modelFilter = "";                           // the pool picker's search text
+let pluginChoice = null;                        // request plugins; null = untouched
 let compareTask = "", comparePoints = [];
 let answersSplit = "", answersData = null;   // side-by-side answers, "" = closed
 let frontierPoints = [], hoveringChart = false;   // hovering pauses the refresh
@@ -272,7 +275,9 @@ function newRunForm() {
       <div><label>concurrency</label><input id="f-concurrency" type="number" min="1" max="32" value="8"></div>
       <div><label title="Which workflow gets recommended, and the target the designer aims at. It does not cap what the search spends.">budget $/query <span style="color:#5b667a">ⓘ</span></label>
         <input id="f-budget" type="number" step="0.0001" value="0.002"></div>
+      <div class="full" id="f-models"></div>
       <div class="full" id="f-tools"></div>
+      <div class="full" id="f-plugins"></div>
       <div class="full" id="f-skills"></div>
       <div class="full"><button class="primary" type="submit" id="f-go">start search</button></div>
     </form>
@@ -290,13 +295,100 @@ async function fillTasks() {
     window._tasks = data.tasks || [];
     workflowTools = data.workflow_tools || [];
     window._defaultTools = data.default_tools || [];
+    window._plugins = data.plugins || [];
+    window._defaultPlugins = data.default_plugins || [];
     window._skills = data.skills || [];
     window._defaultWorking = !!data.default_working_skills;
   }
   slot.innerHTML = newMode === "benchmark" ? benchmarkPicker() : promptFields();
   if (newMode === "benchmark") describeTask();
+  renderModels();
   renderTools();
+  renderPlugins();
   renderSkills();
+  if (!window._modelDir) {
+    // The OpenRouter x Artificial Analysis directory — fetched once, then the
+    // picker re-renders with prices and capability indices filled in.
+    fetch("/api/models").then(r => r.json()).then(dir => {
+      window._modelDir = dir; renderModels();
+    }).catch(() => {});
+  }
+}
+
+// ---- which models, from OpenRouter's whole catalog --------------------------
+// The pool is what the design agent may route workflows over; the designer
+// model is the agent that writes them. Both default to the config; touching
+// either sends an override. Capability columns come from Artificial Analysis.
+function currentPool() {
+  return modelChoice || (window._modelDir ? window._modelDir.default_pool : []);
+}
+
+function aaCells(m) {
+  const aa = m.aa || {};
+  const bits = [];
+  if (aa.intelligence != null) bits.push(`int ${Math.round(aa.intelligence)}`);
+  if (aa.coding != null) bits.push(`code ${Math.round(aa.coding)}`);
+  if (aa.math != null) bits.push(`math ${Math.round(aa.math)}`);
+  if (aa.tokens_per_second) bits.push(`${Math.round(aa.tokens_per_second)} tok/s`);
+  return bits.join(" · ");
+}
+
+function modelRow(m, checked) {
+  const price = m.price_in == null ? "" :
+    `$${(+m.price_in).toFixed(2)}/M in · $${(+m.price_out).toFixed(2)}/M out`;
+  const cap = aaCells(m);
+  return `<label style="display:flex;gap:6px;align-items:baseline;text-transform:none;
+      color:#bdc4d3;font-size:12px;margin:0">
+    <input type="checkbox" ${checked ? "checked" : ""}
+      onchange="toggleModel('${esc(m.id)}',this.checked)" style="width:auto;flex:none">
+    <span><span style="font-family:ui-monospace,Menlo,monospace">${esc(m.id)}</span>
+      <span style="color:#7c8699"> — ${esc(price)}${cap ? " · " + esc(cap) : ""}</span></span></label>`;
+}
+
+function renderModels() {
+  const box = document.getElementById("f-models");
+  if (!box) return;
+  const dir = window._modelDir;
+  if (!dir) { box.innerHTML = `<label>models</label><div class="desc">loading the OpenRouter catalog…</div>`; return; }
+  const byId = Object.fromEntries(dir.models.map(m => [m.id, m]));
+  const pool = currentPool();
+  const designer = designerChoice || dir.default_designer;
+  const q = modelFilter.trim().toLowerCase();
+  // No search text: show the picked pool. With text: the matches (capped), so
+  // 300+ models stay browsable. A picked model stays picked while hidden.
+  const shown = !q
+    ? pool.map(id => byId[id]).filter(Boolean)
+    : dir.models.filter(m => m.id.toLowerCase().includes(q)
+                          || (m.name || "").toLowerCase().includes(q)).slice(0, 25);
+  box.innerHTML = `<label>models the workflows may route over
+      <span style="color:#5b667a">— ${dir.models.length} on OpenRouter${
+      dir.aa_available ? ", capabilities via Artificial Analysis" : ""}</span></label>
+    <input type="text" placeholder="search OpenRouter models — empty shows the picked pool"
+      value="${esc(modelFilter)}" oninput="modelFilter=this.value;renderModels()"
+      style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
+             border-radius:4px;padding:5px 6px;font:inherit;font-size:12px;margin-bottom:5px">
+    <div style="display:flex;flex-direction:column;gap:4px">` +
+    (shown.length ? shown.map(m => modelRow(m, pool.includes(m.id))).join("")
+                  : `<div class="desc">no matches</div>`) +
+    `</div>
+    <div class="desc" style="margin-top:4px">${pool.length} picked${q ? "" : " (the pool)"} —
+      prices from OpenRouter, indices from Artificial Analysis. The design agent is told
+      each one's measurements and researches how they compare for the task.</div>
+    <label style="margin-top:8px">design agent model</label>
+    <input list="model-ids" id="f-designer" value="${esc(designer)}"
+      onchange="designerChoice=this.value.trim()||null"
+      style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
+             border-radius:4px;padding:5px 6px;font:inherit;font-size:12px">
+    <datalist id="model-ids">` +
+    dir.models.map(m => `<option value="${esc(m.id)}">`).join("") + `</datalist>
+    <div class="desc">writes the workflows — its own session is billed through OpenRouter too</div>`;
+}
+
+function toggleModel(id, on) {
+  const base = currentPool().slice();
+  modelChoice = on ? [...new Set([...base, id])] : base.filter(m => m !== id);
+  renderModels();          // the picked count and checkboxes track the choice
+  scheduleEstimate();
 }
 
 // Which server-side tools a workflow may call. Left at the task default unless
@@ -307,9 +399,14 @@ async function fillTasks() {
 // returns results), web_fetch reads a page already in the prompt, code_execution
 // runs Python.
 const TOOL_HELP = {
-  web_search: "search the web — finds pages and new URLs from a query",
+  web_search: "search the web — the model issues queries as it sees fit (native provider search or Exa, ~$0.005/search)",
   web_fetch: "fetch a URL already in the prompt — reads one page in full",
-  code_execution: "run Python in a sandbox",
+  subagent: "delegate a self-contained subtask to a worker model mid-call — off by default; workflows usually route call_model themselves",
+};
+
+const PLUGIN_HELP = {
+  "response-healing": "auto-repair malformed JSON replies — can mask a workflow that's actually broken",
+  "context-compression": "middle-out truncate prompts that exceed the model's context — can silently drop what mattered",
 };
 
 function renderTools() {
@@ -326,9 +423,32 @@ function renderTools() {
         <span style="color:#7c8699"> — ${esc(TOOL_HELP[name] || "")}</span></span></label>`).join("") +
     `</div>
     <div class="desc" style="margin-top:4px">Untick all for a closed-book task, so no
-       candidate can look answers up or run code — the design agent is told what's available.
-       The web tools bundle their own code execution, so they can't be combined with
-       code_execution in one call.</div>`;
+       candidate can look answers up — the design agent is told what's available.
+       These are OpenRouter server tools; there is no server-side code execution.</div>`;
+}
+
+// OpenRouter request plugins: not tools the model calls — each runs once per
+// request when enabled, on EVERY call the run makes. Off by default because both
+// trade correctness visibility for convenience.
+function renderPlugins() {
+  const box = document.getElementById("f-plugins");
+  if (!box) return;
+  const current = pluginChoice || window._defaultPlugins || [];
+  const names = window._plugins || [];
+  box.innerHTML = `<label>request plugins (every call)</label>
+    <div style="display:flex;flex-direction:column;gap:4px">` +
+    names.map(name => `<label style="display:flex;gap:6px;align-items:baseline;
+        text-transform:none;color:#bdc4d3;font-size:12px;margin:0">
+      <input type="checkbox" data-plugin="${esc(name)}" ${current.includes(name) ? "checked" : ""}
+        onchange="togglePlugin('${esc(name)}',this.checked)" style="width:auto;flex:none">
+      <span><span style="font-family:ui-monospace,Menlo,monospace">${esc(name)}</span>
+        <span style="color:#7c8699"> — ${esc(PLUGIN_HELP[name] || "")}</span></span></label>`).join("") +
+    `</div>`;
+}
+
+function togglePlugin(name, on) {
+  const base = (pluginChoice || window._defaultPlugins || []).slice();
+  pluginChoice = on ? [...new Set([...base, name])] : base.filter(p => p !== name);
 }
 
 function toggleTool(name, on) {
@@ -474,6 +594,8 @@ async function loadEstimate() {
     const el = document.getElementById(id);
     if (el && el.value !== "") params.set(key, el.value);
   }
+  if (modelChoice) params.set("models", modelChoice.join(","));
+  if (designerChoice) params.set("designer.model", designerChoice);
   const e = await (await fetch("/api/estimate?" + params)).json();
   if (e.error) { box.innerHTML = `<span class="err">${esc(e.error)}</span>`; return; }
   renderEstimate(e);
@@ -525,6 +647,8 @@ async function runProbe() {
     const el = document.getElementById(id);
     if (el && el.value !== "") overrides[key] = el.value;
   }
+  if (modelChoice) overrides["models"] = modelChoice;
+  if (designerChoice) overrides["designer.model"] = designerChoice;
   const sel = document.getElementById("f-task");
   const e = await (await fetch("/api/probe", {
     method: "POST", headers: {"Content-Type": "application/json"},
@@ -578,6 +702,10 @@ async function startRun(ev) {
       "report.max_cost_per_query": document.getElementById("f-budget").value,
     },
   };
+  // Only when touched — the config defaults otherwise, same as every field.
+  if (modelChoice) body.overrides["models"] = modelChoice;
+  if (designerChoice) body.overrides["designer.model"] = designerChoice;
+  if (pluginChoice) body.overrides["call.plugins"] = pluginChoice;
   const res = await (await fetch("/api/runs", {
     method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body),
   })).json();
@@ -924,7 +1052,16 @@ async function loadTrace() {
 function modelHue(model) {
   const m = String(model).toLowerCase();
   return m.includes("haiku") ? "#86efac" : m.includes("sonnet") ? "#7dd3fc"
-       : m.includes("opus") ? "#c4b5fd" : "#8b95a7";
+       : m.includes("opus") ? "#c4b5fd"
+       : m.includes("luna") ? "#fde68a" : m.includes("terra") ? "#fdba74"
+       : m.includes("sol") ? "#f9a8d4" : "#8b95a7";
+}
+
+// "anthropic/claude-sonnet-5" -> "sonnet"; "openai/gpt-5.6-luna" -> "luna"
+// (the tier is the last segment on GPT ids, the first on Claude ids)
+function modelShort(model) {
+  const parts = String(model).split("/").pop().replace(/^claude-/, "").split("-");
+  return parts[0] === "gpt" ? parts[parts.length - 1] : parts[0];
 }
 
 function diagramHtml() {
@@ -947,7 +1084,7 @@ function diagramHtml() {
   const box = (model, times) => `<span style="border:1px solid ${modelHue(model)};
       color:${modelHue(model)};border-radius:5px;padding:2px 8px;font-size:11px;
       font-family:ui-monospace,Menlo,monospace;white-space:nowrap">${
-      esc(String(model).replace(/^claude-/, "").split("-")[0])}${times > 1 ? " ×" + times : ""}</span>`;
+      esc(modelShort(model))}${times > 1 ? " ×" + times : ""}</span>`;
   const arrow = `<span style="color:#5b667a">→</span>`;
 
   const rows = paths.map(g => {

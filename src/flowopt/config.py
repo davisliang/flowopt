@@ -14,24 +14,6 @@ from .paths import CONFIG_DIR
 
 
 @dataclass
-class ModelSpec:
-    """One model the optimizer may use, with the facts needed to price and route it.
-
-    Attributes:
-        id: The API model id, e.g. "claude-haiku-4-5".
-        price_in: USD per 1,000,000 input tokens.
-        price_out: USD per 1,000,000 output tokens.
-        thinks: Whether the model supports the effort / adaptive-thinking
-            parameters. A workflow asking for `effort` on a model that can't
-            think is ignored rather than erroring.
-    """
-    id: str
-    price_in: float
-    price_out: float
-    thinks: bool = False
-
-
-@dataclass
 class CallConfig:
     """Settings for a single model call.
 
@@ -40,17 +22,20 @@ class CallConfig:
             for the tokens a reply actually uses — so it is set high enough never
             to be the reason an answer is short. It must stay generous because
             thinking counts against it.
-        max_tool_turns: How many times one call may be resumed while a
-            server-side tool keeps pausing the turn.
-        cache_write_multiplier: Multiple of the input rate billed for writing the
-            prompt cache (a one-time surcharge).
-        cache_read_multiplier: Multiple of the input rate billed for reading it
-            (~90% discount).
+        cache_write_multiplier: Fallback multiple of the input rate billed for
+            writing the prompt cache, used only when OpenRouter lists no cache
+            price for the model.
+        cache_read_multiplier: Likewise for reading it (~90% discount).
+        plugins: OpenRouter request plugins applied to EVERY call — a subset of
+            "response-healing" (auto-repair malformed JSON) and
+            "context-compression" (middle-out truncation of oversized prompts).
+            Unlike `runtime.tools` these are not model-callable; each runs once
+            per request. Empty means none.
     """
     max_output_tokens: int = 64000
-    max_tool_turns: int = 5
     cache_write_multiplier: float = 1.25
     cache_read_multiplier: float = 0.10
+    plugins: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -62,15 +47,17 @@ class RuntimeConfig:
         max_tokens: Tokens a single query may spend before it is stopped.
         concurrency: How many examples are scored at once. API latency dominates
             the wall clock, so this is the main speed knob.
-        tools: Server-side tools a workflow may call — a subset of
-            "code_execution", "web_search", and "web_fetch". A workflow that calls
-            one not on this list is rejected, so a closed-book benchmark can set
-            `tools: []` and be sure no candidate reached the web. Empty means none.
+        tools: Server-side tools a workflow may call — a subset of "web_search",
+            "web_fetch" and "subagent". A workflow that calls one not on this
+            list is rejected, so a closed-book benchmark can set `tools: []` and
+            be sure no candidate reached the web. Empty means none. subagent is
+            off by default: workflows already delegate by routing `call_model`,
+            so in-call delegation mostly hides cost structure from the search.
     """
     max_model_calls: int = 24
     max_tokens: int = 120_000
     concurrency: int = 8
-    tools: list[str] = field(default_factory=lambda: ["code_execution", "web_search", "web_fetch"])
+    tools: list[str] = field(default_factory=lambda: ["web_search", "web_fetch"])
 
 
 @dataclass
@@ -85,7 +72,7 @@ class JudgeConfig:
             is rejected. Together these two catch a rubric that doesn't
             discriminate, whose scores would be noise.
     """
-    model: str = "claude-haiku-4-5"
+    model: str = "anthropic/claude-haiku-4.5"
     min_gold_score: float = 0.7
     max_empty_score: float = 0.5
 
@@ -166,7 +153,7 @@ class DesignerConfig:
             `.claude/skills/` each round.
         allowed_tools: Tools the agent is permitted to use.
     """
-    model: str = "claude-opus-4-8"
+    model: str = "anthropic/claude-opus-4.8"
     rounds: int = 3
     research: bool = True
     working_skills: bool = False
@@ -235,9 +222,10 @@ class Config:
 
     Attributes:
         task: What is being optimized.
-        models: The models the search may use, cheapest first. This one list is
-            the search pool, the menu a workflow routes over, and the price table
-            cost is measured with.
+        models: OpenRouter ids of the models the search may use. This one list
+            is the search pool and the menu a workflow routes over; prices and
+            capabilities are fetched (OpenRouter / Artificial Analysis), not
+            configured — see `models.ModelCatalog`.
         analysis_model: The model that analyzes the task and generates data.
         call: Per-call settings.
         runtime: Per-query limits for candidate workflows.
@@ -247,8 +235,8 @@ class Config:
         report: Final reporting settings.
     """
     task: TaskConfig = field(default_factory=TaskConfig)
-    models: list[ModelSpec] = field(default_factory=list)
-    analysis_model: str = "claude-opus-4-8"
+    models: list[str] = field(default_factory=list)
+    analysis_model: str = "anthropic/claude-opus-4.8"
     call: CallConfig = field(default_factory=CallConfig)
     runtime: RuntimeConfig = field(default_factory=RuntimeConfig)
     judge: JudgeConfig = field(default_factory=JudgeConfig)

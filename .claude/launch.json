@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "flowopt-ui",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "source ~/.bashrc && uv run flowopt-ui"],
+      "port": 8770
+    }
+  ]
+}

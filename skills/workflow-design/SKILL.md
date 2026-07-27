@@ -36,15 +36,17 @@ def solve(question, call_model):
     - `model=<name>` — route to a specific model (see `MODELS`, cheap → expensive).
     - `system="..."` — set a system prompt for that call.
     - `tools=[...]` — server-side tools; they run on the API side and the results
-      come back in the same reply. `"code_execution"` runs Python,
-      `"web_search"` searches the web, `"web_fetch"` reads a URL already present
-      in the prompt. The prompt says which are allowed for THIS task — calling any
-      other fails the query. The web tools bundle their own code execution, so
-      `"code_execution"` cannot be combined with either web tool in one call
-      (any one of them alone is fine).
+      come back in the same reply. `"web_search"` searches the web, `"web_fetch"`
+      reads a URL already present in the prompt, `"subagent"` lets the model
+      delegate a self-contained subtask to a worker model mid-call (prefer routing
+      `call_model` yourself — it keeps each step's cost visible and tunable). The
+      prompt says which are allowed for THIS task — calling any other fails the
+      query. There is NO code-execution tool: models cannot run code, so exact
+      arithmetic or string manipulation belongs in your own solve() Python, which
+      runs for free.
     - `effort="low"|"medium"|"high"|"xhigh"|"max"` — sets how deeply the model
-      thinks WHEN it decides to think (Sonnet 5 / Opus 4.8 only; ignored on the
-      cheap model). The deciding is adaptive: on a short prompt whose output is
+      thinks, on models that support reasoning (the prompt's model list says
+      which; ignored elsewhere). On a short prompt whose output is
       schema-constrained, the model often skips thinking entirely, and then
       `effort="high"` behaves exactly like no effort at all — same answer, same
       cost. Check `reply.usage["output"]`: if a high-effort call's output tokens
@@ -96,20 +98,26 @@ is unwrapped to its `answer` for you.
 If the prompt gives you existing workflows with their accuracy and cost, your job
 is to make them **cheaper without losing accuracy**. Good moves: use a cheaper
 model, make fewer model calls, route easy inputs to the cheap model and only
-escalate hard ones, or use `tools=["code_execution"]` so the model computes
-exactly instead of sampling many times. Keep a new candidate only if it stays at
-least as accurate as the best existing workflow while costing less per query.
+escalate hard ones, or move exact computation (arithmetic, parsing, counting)
+into solve()'s own Python so the model never has to be sampled for it. Keep a
+new candidate only if it stays at least as accurate as the best existing
+workflow while costing less per query.
 
 **Prompt caching only engages above a per-model size floor — check before relying
 on it.** Resending the same prompt to the same model bills the repeat at ~10% of the
 input rate, but ONLY if the shared prefix is long enough. Below the floor nothing is
 cached and there is no error, just a silently full-price call:
 
-| model | shared prefix must exceed |
+| model family | shared prefix must exceed |
 |---|---|
-| `claude-haiku-4-5` | ~4,096 tokens |
-| `claude-opus-4-8` | ~4,096 tokens |
-| `claude-sonnet-5` | ~1,024 tokens |
+| `anthropic/*` haiku and opus tiers | ~4,096 tokens |
+| `anthropic/*` sonnet tiers | ~1,024 tokens |
+| `openai/*` | ~1,024 tokens |
+| other providers | varies; assume ~1,024+ and verify |
+
+(Everything is served via OpenRouter, which passes provider caching through —
+OpenAI-style models cache automatically, Anthropic-style ones use the cache
+breakpoints the runtime already sets. The floor logic applies either way.)
 
 Short-prompt tasks are the common case and they are all far below this — a one-line
 question with a paragraph of system prompt is ~100 tokens, so caching cannot help at

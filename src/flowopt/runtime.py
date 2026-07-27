@@ -140,8 +140,9 @@ class CallMeter:
             model: Model id to route to. Unknown or omitted falls back to the
                 default — model-written code routes by name and may invent one.
             system: Optional system prompt.
-            tools: Server-side tools to enable: "code_execution", "web_search",
-                "web_fetch". A tool not on the task's allowlist raises RuntimeError.
+            tools: Server-side tools to enable: "web_search", "web_fetch",
+                "subagent". A tool not on the task's allowlist raises
+                RuntimeError.
             effort: Thinking depth, "low" through "max". Ignored on models that
                 cannot think.
             schema: JSON Schema (or Pydantic class) constraining the reply. The
@@ -158,18 +159,20 @@ class CallMeter:
             raise RuntimeError("workflow exceeded its model-call budget")
         # Enforced here because this is the one place a workflow reaches a tool.
         # Rejected, not silently dropped: a closed-book run must fail a candidate
-        # that tried to search, not quietly answer it a different way.
-        if self.allowed_tools is not None:
-            for tool in tools or []:
-                if tool not in self.allowed_tools:
-                    raise RuntimeError(f"tool '{tool}' is not allowed for this task")
-        # The web tools bundle their own code-execution sandbox for dynamic
-        # filtering; a second one alongside confuses the model, so the API forbids
-        # the pair. Reject it here rather than let it 400 mid-search.
-        requested = set(tools or [])
-        if "code_execution" in requested and requested & {"web_search", "web_fetch"}:
-            raise RuntimeError("code_execution cannot be combined with web_search/web_fetch "
-                               "in one call — the web tools already run code")
+        # that tried to search, not quietly answer it a different way. Legacy
+        # spellings normalize to the real tool FIRST, so the allowlist can't be
+        # dodged by an alias; a name the registry doesn't know at all gets its
+        # own message — chiefly code_execution, which existed before the move to
+        # OpenRouter.
+        from .client import TOOL_ALIASES, TOOL_DEFS
+        tools = [TOOL_ALIASES.get(t, t) for t in tools] if tools else tools
+        for tool in tools or []:
+            if tool not in TOOL_DEFS:
+                raise RuntimeError(f"unknown tool '{tool}' — available: "
+                                   f"{', '.join(sorted(TOOL_DEFS))} (OpenRouter runs "
+                                   f"no code server-side, so there is no code_execution)")
+            if self.allowed_tools is not None and tool not in self.allowed_tools:
+                raise RuntimeError(f"tool '{tool}' is not allowed for this task")
         self.calls += 1
         model = self.client.catalog.resolve(model) if model else self.default_model
 
@@ -182,7 +185,11 @@ class CallMeter:
             except ValueError:
                 data = None                        # a refusal, or a reply past the ceiling
 
-        cost = self.client.catalog.cost_usd(model, response.usage)
+        # Prefer what OpenRouter actually billed (it knows about cache writes and
+        # web-plugin fees); the catalog math is the fallback for clients that
+        # don't report it.
+        billed = getattr(response, "cost", None)
+        cost = billed if billed is not None else self.client.catalog.cost_usd(model, response.usage)
         self.tokens += sum(response.usage.values())
         self.cost += cost
 

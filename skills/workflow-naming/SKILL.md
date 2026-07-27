@@ -22,9 +22,12 @@ Steps in execution order, separated by `→`. Each step is a model letter plus
 modifiers. Lowercase words are non-model operations.
 
 ```
-models      H = haiku-4-5      S = sonnet-5      O = opus-4-8
+models      one capital letter per pool model, assigned cheapest -> most
+            expensive; with the default pool: H = claude-haiku-4.5,
+            L = gpt-5.6-luna, T = gpt-5.6-terra, S = claude-sonnet-5,
+            O = claude-opus-4.8, G = gpt-5.6-sol
 modifiers   ^  high effort           ~  medium effort
-            #  code execution        ×N N samples of that step
+            #  web search            ×N N samples of that step
 ops         vote  pick  first  stop  skip        (lowercase = no model call)
 branch      {decider: A|B}   choose between A and B
 sugar       ?X  ==  {self: skip|X}   run X only if the previous step is unsure

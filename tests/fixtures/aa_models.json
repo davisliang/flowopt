@@ -1,0 +1,1028 @@
+{
+ "gpt-5-6-sol-high": {
+  "id": "8afc250d-b538-45a2-812a-4605f4ffd87e",
+  "name": "GPT-5.6 Sol (high)",
+  "slug": "gpt-5-6-sol-high",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 55.9,
+   "artificial_analysis_coding_index": 77.2,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.928,
+   "hle": 0.441,
+   "livecodebench": null,
+   "scicode": 0.569,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.691836734693878,
+   "lcr": 0.683333333333333,
+   "terminalbench_hard": 0.621212121212121,
+   "terminalbench_v2_1": 0.872659176029963,
+   "tau2": 0.833333333333333,
+   "tau_banking": 0.305841924398625
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 11.25,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 30
+  },
+  "median_output_tokens_per_second": 65.767,
+  "median_time_to_first_token_seconds": 11.263,
+  "median_time_to_first_answer_token": 11.263
+ },
+ "gpt-5-6-sol": {
+  "id": "d93edfe8-bf35-49ad-b56e-b18116142a1c",
+  "name": "GPT-5.6 Sol (max)",
+  "slug": "gpt-5-6-sol",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 58.9,
+   "artificial_analysis_coding_index": 77.4,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.941,
+   "hle": 0.472,
+   "livecodebench": null,
+   "scicode": 0.561,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.726530612244898,
+   "lcr": 0.736666666666667,
+   "terminalbench_hard": 0.659090909090909,
+   "terminalbench_v2_1": 0.880149812734082,
+   "tau2": 0.850877192982456,
+   "tau_banking": 0.329896907216495
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 11.25,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 30
+  },
+  "median_output_tokens_per_second": 73.856,
+  "median_time_to_first_token_seconds": 86.493,
+  "median_time_to_first_answer_token": 86.493
+ },
+ "gpt-5-6-terra": {
+  "id": "bcf8db0a-3bb6-4d82-9516-0f57370c85a6",
+  "name": "GPT-5.6 Terra (max)",
+  "slug": "gpt-5-6-terra",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 55,
+   "artificial_analysis_coding_index": 76.7,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.925,
+   "hle": 0.418,
+   "livecodebench": null,
+   "scicode": 0.539,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.712244897959184,
+   "lcr": 0.74,
+   "terminalbench_hard": 0.575757575757576,
+   "terminalbench_v2_1": 0.880149812734082,
+   "tau2": 0.862573099415205,
+   "tau_banking": 0.317525773195876
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 5.625,
+   "price_1m_input_tokens": 2.5,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 128.044,
+  "median_time_to_first_token_seconds": 110.138,
+  "median_time_to_first_answer_token": 110.138
+ },
+ "gpt-5-6-sol-xhigh": {
+  "id": "d998db47-9b67-4727-a2bb-2e1261020ac0",
+  "name": "GPT-5.6 Sol (xhigh)",
+  "slug": "gpt-5-6-sol-xhigh",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 57.7,
+   "artificial_analysis_coding_index": 78.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.931,
+   "hle": 0.447,
+   "livecodebench": null,
+   "scicode": 0.56,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.710204081632653,
+   "lcr": 0.71,
+   "terminalbench_hard": 0.613636363636364,
+   "terminalbench_v2_1": 0.895131086142322,
+   "tau2": 0.847953216374269,
+   "tau_banking": 0.326460481099656
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 11.25,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 30
+  },
+  "median_output_tokens_per_second": 64.161,
+  "median_time_to_first_token_seconds": 31,
+  "median_time_to_first_answer_token": 31
+ },
+ "gpt-5-6-luna": {
+  "id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+  "name": "GPT-5.6 Luna (max)",
+  "slug": "gpt-5-6-luna",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 51.2,
+   "artificial_analysis_coding_index": 71.4,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.911,
+   "hle": 0.372,
+   "livecodebench": null,
+   "scicode": 0.525,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.74,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.808988764044944,
+   "tau2": null,
+   "tau_banking": 0.272164948453608
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.25,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 6
+  },
+  "median_output_tokens_per_second": 171.41,
+  "median_time_to_first_token_seconds": 86.827,
+  "median_time_to_first_answer_token": 86.827
+ },
+ "gpt-5-6-terra-non-reasoning": {
+  "id": "9b97a35e-6ac7-44d9-91c6-422fa678963e",
+  "name": "GPT-5.6 Terra (Non-reasoning)",
+  "slug": "gpt-5-6-terra-non-reasoning",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 34,
+   "artificial_analysis_coding_index": 52.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.746,
+   "hle": 0.11,
+   "livecodebench": null,
+   "scicode": 0.446,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.5,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.561797752808989,
+   "tau2": null,
+   "tau_banking": 0.134020618556701
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 5.625,
+   "price_1m_input_tokens": 2.5,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 118.747,
+  "median_time_to_first_token_seconds": 0.676,
+  "median_time_to_first_answer_token": 0.676
+ },
+ "gpt-5-6-sol-non-reasoning": {
+  "id": "7c4d1e30-6ecb-46cf-880c-41446d7b51f1",
+  "name": "GPT-5.6 Sol (Non-reasoning)",
+  "slug": "gpt-5-6-sol-non-reasoning",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 41.2,
+   "artificial_analysis_coding_index": 65.1,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.79,
+   "hle": 0.158,
+   "livecodebench": null,
+   "scicode": 0.471,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.553333333333333,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.741573033707865,
+   "tau2": null,
+   "tau_banking": 0.160824742268041
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 11.25,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 30
+  },
+  "median_output_tokens_per_second": 71.049,
+  "median_time_to_first_token_seconds": 1.074,
+  "median_time_to_first_answer_token": 1.074
+ },
+ "gpt-5-6-terra-high": {
+  "id": "81972fba-1219-477e-bbfb-18c656a63ff7",
+  "name": "GPT-5.6 Terra (high)",
+  "slug": "gpt-5-6-terra-high",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 49,
+   "artificial_analysis_coding_index": 67.1,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.896,
+   "hle": 0.367,
+   "livecodebench": null,
+   "scicode": 0.501,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.64421768707483,
+   "lcr": 0.723333333333333,
+   "terminalbench_hard": 0.575757575757576,
+   "terminalbench_v2_1": 0.756554307116105,
+   "tau2": 0.783625730994152,
+   "tau_banking": 0.222680412371134
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 5.625,
+   "price_1m_input_tokens": 2.5,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 114.592,
+  "median_time_to_first_token_seconds": 2.437,
+  "median_time_to_first_answer_token": 2.437
+ },
+ "gpt-5-6-terra-low": {
+  "id": "cc4a20cd-09fe-4962-a430-119c815e85fa",
+  "name": "GPT-5.6 Terra (low)",
+  "slug": "gpt-5-6-terra-low",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 40.5,
+   "artificial_analysis_coding_index": 58.1,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.843,
+   "hle": 0.274,
+   "livecodebench": null,
+   "scicode": 0.492,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.596598639455782,
+   "lcr": 0.643333333333333,
+   "terminalbench_hard": 0.439393939393939,
+   "terminalbench_v2_1": 0.625468164794007,
+   "tau2": 0.605263157894737,
+   "tau_banking": 0.160824742268041
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 5.625,
+   "price_1m_input_tokens": 2.5,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 111.175,
+  "median_time_to_first_token_seconds": 1.301,
+  "median_time_to_first_answer_token": 1.301
+ },
+ "gpt-5-6-sol-medium": {
+  "id": "6f174934-5b7d-4333-86cb-f5ebf4a862e3",
+  "name": "GPT-5.6 Sol (medium)",
+  "slug": "gpt-5-6-sol-medium",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 53.6,
+   "artificial_analysis_coding_index": 76.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.926,
+   "hle": 0.397,
+   "livecodebench": null,
+   "scicode": 0.565,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.695918367346939,
+   "lcr": 0.686666666666667,
+   "terminalbench_hard": 0.628787878787879,
+   "terminalbench_v2_1": 0.861423220973783,
+   "tau2": 0.809941520467836,
+   "tau_banking": 0.264604810996564
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 11.25,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 30
+  },
+  "median_output_tokens_per_second": 60.007,
+  "median_time_to_first_token_seconds": 5.28,
+  "median_time_to_first_answer_token": 5.28
+ },
+ "gpt-5-6-terra-medium": {
+  "id": "26e0f83a-ca98-4f34-94ac-7c5e251ee410",
+  "name": "GPT-5.6 Terra (medium)",
+  "slug": "gpt-5-6-terra-medium",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 45.6,
+   "artificial_analysis_coding_index": 64.7,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.872,
+   "hle": 0.316,
+   "livecodebench": null,
+   "scicode": 0.497,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.621768707482993,
+   "lcr": 0.68,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.722846441947566,
+   "tau2": 0.728070175438596,
+   "tau_banking": 0.193814432989691
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 5.625,
+   "price_1m_input_tokens": 2.5,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 116.007,
+  "median_time_to_first_token_seconds": 1.781,
+  "median_time_to_first_answer_token": 1.781
+ },
+ "gpt-5-6-sol-low": {
+  "id": "0904b596-8932-43bd-9b21-324f128e1723",
+  "name": "GPT-5.6 Sol (low)",
+  "slug": "gpt-5-6-sol-low",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 49.4,
+   "artificial_analysis_coding_index": 69.7,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.898,
+   "hle": 0.366,
+   "livecodebench": null,
+   "scicode": 0.554,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.66530612244898,
+   "lcr": 0.676666666666667,
+   "terminalbench_hard": 0.606060606060606,
+   "terminalbench_v2_1": 0.767790262172285,
+   "tau2": 0.760233918128655,
+   "tau_banking": 0.243986254295533
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 11.25,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 30
+  },
+  "median_output_tokens_per_second": 69.322,
+  "median_time_to_first_token_seconds": 2.798,
+  "median_time_to_first_answer_token": 2.798
+ },
+ "gpt-5-6-luna-non-reasoning": {
+  "id": "dc64f856-3ded-497d-9527-d41d31267ed5",
+  "name": "GPT-5.6 Luna (Non-reasoning)",
+  "slug": "gpt-5-6-luna-non-reasoning",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 26.6,
+   "artificial_analysis_coding_index": 39.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.645,
+   "hle": 0.067,
+   "livecodebench": null,
+   "scicode": 0.399,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.363333333333333,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.389513108614232,
+   "tau2": null,
+   "tau_banking": 0.0907216494845361
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.25,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 6
+  },
+  "median_output_tokens_per_second": 162.916,
+  "median_time_to_first_token_seconds": 0.609,
+  "median_time_to_first_answer_token": 0.609
+ },
+ "gpt-5-6-terra-xhigh": {
+  "id": "9e30696f-16fa-4b4f-ba53-161895a85fed",
+  "name": "GPT-5.6 Terra (xhigh)",
+  "slug": "gpt-5-6-terra-xhigh",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 51.6,
+   "artificial_analysis_coding_index": 70.6,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.908,
+   "hle": 0.4,
+   "livecodebench": null,
+   "scicode": 0.516,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.662585034013605,
+   "lcr": 0.713333333333333,
+   "terminalbench_hard": 0.628787878787879,
+   "terminalbench_v2_1": 0.801498127340824,
+   "tau2": 0.804093567251462,
+   "tau_banking": 0.243298969072165
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 5.625,
+   "price_1m_input_tokens": 2.5,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 119.972,
+  "median_time_to_first_token_seconds": 7.701,
+  "median_time_to_first_answer_token": 7.701
+ },
+ "gpt-5-6-luna-xhigh": {
+  "id": "87110ff0-1f79-41b4-9976-eda250597317",
+  "name": "GPT-5.6 Luna (xhigh)",
+  "slug": "gpt-5-6-luna-xhigh",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 49.1,
+   "artificial_analysis_coding_index": 68.6,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.895,
+   "hle": 0.356,
+   "livecodebench": null,
+   "scicode": 0.5,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.696666666666667,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.779026217228464,
+   "tau2": null,
+   "tau_banking": 0.243298969072165
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.25,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 6
+  },
+  "median_output_tokens_per_second": 161.229,
+  "median_time_to_first_token_seconds": 36.093,
+  "median_time_to_first_answer_token": 36.093
+ },
+ "gpt-5-6-luna-high": {
+  "id": "aa55297e-8fbf-4372-b4ab-9b068dc6396c",
+  "name": "GPT-5.6 Luna (high)",
+  "slug": "gpt-5-6-luna-high",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 46.1,
+   "artificial_analysis_coding_index": 63.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.892,
+   "hle": 0.316,
+   "livecodebench": null,
+   "scicode": 0.507,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.69,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.696629213483146,
+   "tau2": null,
+   "tau_banking": 0.222680412371134
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.25,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 6
+  },
+  "median_output_tokens_per_second": 174.314,
+  "median_time_to_first_token_seconds": 6.215,
+  "median_time_to_first_answer_token": 6.215
+ },
+ "gpt-5-6-luna-medium": {
+  "id": "58b812bf-8498-46db-b834-f43ccc614b61",
+  "name": "GPT-5.6 Luna (medium)",
+  "slug": "gpt-5-6-luna-medium",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 38.1,
+   "artificial_analysis_coding_index": 50.7,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.859,
+   "hle": 0.245,
+   "livecodebench": null,
+   "scicode": 0.458,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.66,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.531835205992509,
+   "tau2": null,
+   "tau_banking": 0.152577319587629
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.25,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 6
+  },
+  "median_output_tokens_per_second": 167.278,
+  "median_time_to_first_token_seconds": 2.558,
+  "median_time_to_first_answer_token": 2.558
+ },
+ "gpt-5-6-luna-low": {
+  "id": "050c61cd-cddc-463a-a30a-a82aaa37be59",
+  "name": "GPT-5.6 Luna (low)",
+  "slug": "gpt-5-6-luna-low",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e67e56e3-15cd-43db-b679-da4660a69f41",
+   "name": "OpenAI",
+   "slug": "openai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 33.3,
+   "artificial_analysis_coding_index": 44.2,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.835,
+   "hle": 0.188,
+   "livecodebench": null,
+   "scicode": 0.456,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.593333333333333,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.434456928838951,
+   "tau2": null,
+   "tau_banking": 0.119587628865979
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.25,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 6
+  },
+  "median_output_tokens_per_second": 162.669,
+  "median_time_to_first_token_seconds": 1.275,
+  "median_time_to_first_answer_token": 1.275
+ },
+ "claude-sonnet-5-high": {
+  "id": "ba0224cf-0351-4f56-8508-b3f1a740ae4a",
+  "name": "Claude Sonnet 5 (Adaptive Reasoning, High Effort)",
+  "slug": "claude-sonnet-5-high",
+  "release_date": "2026-06-30",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": null,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": null,
+   "hle": null,
+   "livecodebench": null,
+   "scicode": null,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": null,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": null,
+   "tau2": null,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 10
+  },
+  "median_output_tokens_per_second": 64.911,
+  "median_time_to_first_token_seconds": 4.254,
+  "median_time_to_first_answer_token": 4.254
+ },
+ "claude-sonnet-5-medium": {
+  "id": "effcd151-7c31-4437-af3d-e88daeae9385",
+  "name": "Claude Sonnet 5 (Adaptive Reasoning, Medium Effort)",
+  "slug": "claude-sonnet-5-medium",
+  "release_date": "2026-06-30",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": null,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": null,
+   "hle": null,
+   "livecodebench": null,
+   "scicode": null,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": null,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": null,
+   "tau2": null,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 10
+  },
+  "median_output_tokens_per_second": 64.45,
+  "median_time_to_first_token_seconds": 1.61,
+  "median_time_to_first_answer_token": 1.61
+ },
+ "claude-sonnet-5-low": {
+  "id": "142b93bf-09c4-42dc-9c3a-50b1a222cbd4",
+  "name": "Claude Sonnet 5 (Adaptive Reasoning, Low Effort)",
+  "slug": "claude-sonnet-5-low",
+  "release_date": "2026-06-30",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": null,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": null,
+   "hle": null,
+   "livecodebench": null,
+   "scicode": null,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": null,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": null,
+   "tau2": null,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 10
+  },
+  "median_output_tokens_per_second": 61.206,
+  "median_time_to_first_token_seconds": 1.484,
+  "median_time_to_first_answer_token": 1.484
+ },
+ "claude-sonnet-5-xhigh": {
+  "id": "99f376bf-cbcb-4124-bf3e-6b0a4e6e9bea",
+  "name": "Claude Sonnet 5 (Adaptive Reasoning, Xhigh Effort)",
+  "slug": "claude-sonnet-5-xhigh",
+  "release_date": "2026-06-30",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": null,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": null,
+   "hle": null,
+   "livecodebench": null,
+   "scicode": null,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": null,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": null,
+   "tau2": null,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 10
+  },
+  "median_output_tokens_per_second": 74.301,
+  "median_time_to_first_token_seconds": 24.6,
+  "median_time_to_first_answer_token": 24.6
+ },
+ "claude-sonnet-5": {
+  "id": "23c86e4a-c769-43c0-a056-79e3cd15834f",
+  "name": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort)",
+  "slug": "claude-sonnet-5",
+  "release_date": "2026-06-30",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 53.4,
+   "artificial_analysis_coding_index": 71.5,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.911,
+   "hle": 0.396,
+   "livecodebench": null,
+   "scicode": 0.536,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.706666666666667,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.805243445692884,
+   "tau2": null,
+   "tau_banking": 0.282474226804124
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 10
+  },
+  "median_output_tokens_per_second": 83.419,
+  "median_time_to_first_token_seconds": 108.375,
+  "median_time_to_first_answer_token": 108.375
+ },
+ "claude-opus-4-8": {
+  "id": "992b7b84-5069-4c6a-9295-834252553d50",
+  "name": "Claude Opus 4.8 (Adaptive Reasoning, Max Effort)",
+  "slug": "claude-opus-4-8",
+  "release_date": "2026-05-28",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 55.7,
+   "artificial_analysis_coding_index": 74.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.92,
+   "hle": 0.457,
+   "livecodebench": null,
+   "scicode": 0.535,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.622448979591837,
+   "lcr": 0.676666666666667,
+   "terminalbench_hard": 0.583333333333333,
+   "terminalbench_v2_1": 0.846441947565543,
+   "tau2": 0.944444444444445,
+   "tau_banking": 0.276288659793814
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 10,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 25
+  },
+  "median_output_tokens_per_second": 62.55,
+  "median_time_to_first_token_seconds": 46.471,
+  "median_time_to_first_answer_token": 46.471
+ },
+ "claude-sonnet-5-non-reasoning": {
+  "id": "d58b9ada-fd9d-4fff-a086-242034657963",
+  "name": "Claude Sonnet 5 (Non-reasoning, High Effort)",
+  "slug": "claude-sonnet-5-non-reasoning",
+  "release_date": "2026-06-30",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 41.7,
+   "artificial_analysis_coding_index": 66.4,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.8,
+   "hle": 0.178,
+   "livecodebench": null,
+   "scicode": 0.486,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.586666666666667,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.752808988764045,
+   "tau2": null,
+   "tau_banking": 0.14020618556701
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 10
+  },
+  "median_output_tokens_per_second": 64.303,
+  "median_time_to_first_token_seconds": 1.219,
+  "median_time_to_first_answer_token": 1.219
+ },
+ "claude-4-5-haiku": {
+  "id": "c2b1e769-7aee-4669-8076-73918bdebf6c",
+  "name": "Claude 4.5 Haiku (Non-reasoning)",
+  "slug": "claude-4-5-haiku",
+  "release_date": "2025-10-15",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 23.7,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": 39,
+   "mmlu_pro": 0.8,
+   "gpqa": 0.646,
+   "hle": 0.043,
+   "livecodebench": 0.511,
+   "scicode": 0.344,
+   "math_500": null,
+   "aime": null,
+   "aime_25": 0.39,
+   "ifbench": 0.420408163265306,
+   "lcr": 0.436666666666667,
+   "terminalbench_hard": 0.272727272727273,
+   "terminalbench_v2_1": null,
+   "tau2": 0.324561403508772,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 5
+  },
+  "median_output_tokens_per_second": 110.692,
+  "median_time_to_first_token_seconds": 0.713,
+  "median_time_to_first_answer_token": 0.713
+ },
+ "claude-4-5-haiku-reasoning": {
+  "id": "a6340098-d7ae-462d-b372-0a0a67fc44b4",
+  "name": "Claude 4.5 Haiku (Reasoning)",
+  "slug": "claude-4-5-haiku-reasoning",
+  "release_date": "2025-10-15",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 29.6,
+   "artificial_analysis_coding_index": 43.9,
+   "artificial_analysis_math_index": 83.7,
+   "mmlu_pro": 0.76,
+   "gpqa": 0.672,
+   "hle": 0.097,
+   "livecodebench": 0.615,
+   "scicode": 0.433,
+   "math_500": null,
+   "aime": null,
+   "aime_25": 0.836666666666667,
+   "ifbench": 0.542857142857143,
+   "lcr": 0.703333333333333,
+   "terminalbench_hard": 0.272727272727273,
+   "terminalbench_v2_1": 0.441947565543071,
+   "tau2": 0.546783625730994,
+   "tau_banking": 0.0907216494845361
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 5
+  },
+  "median_output_tokens_per_second": 150.218,
+  "median_time_to_first_token_seconds": 15.731,
+  "median_time_to_first_answer_token": 15.731
+ }
+}

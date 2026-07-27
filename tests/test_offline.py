@@ -57,62 +57,74 @@ def evaluator(cfg, catalog, grader=None):
     return Evaluator(FakeClient(catalog), grader or Grader(kind="numeric"), cfg.runtime)
 
 
-# ---- the client's tool-turn loop --------------------------------------------
-def _sdk_message(text, stop_reason):
-    """A minimal stand-in for an Anthropic SDK Message."""
+# ---- the OpenRouter client --------------------------------------------------
+def _or_response(text="ok", cached=0, finish="stop", cost=None):
+    """A minimal stand-in for an OpenRouter chat completion."""
     return SimpleNamespace(
-        content=[SimpleNamespace(type="text", text=text)],
-        stop_reason=stop_reason,
-        usage=SimpleNamespace(input_tokens=10, output_tokens=5,
-                              cache_creation_input_tokens=0, cache_read_input_tokens=0))
+        choices=[SimpleNamespace(
+            message=SimpleNamespace(content=text, annotations=None),
+            finish_reason=finish)],
+        usage=SimpleNamespace(prompt_tokens=100, completion_tokens=10,
+                              prompt_tokens_details=SimpleNamespace(cached_tokens=cached),
+                              cost=cost))
 
 
-class _FakeStream:
-    """What `messages.stream(...)` returns: a context manager over one Message."""
+class FakeOpenRouter:
+    """Serves one canned completion and keeps the request for inspection."""
 
-    def __init__(self, message):
-        self.message = message
+    def __init__(self, response):
+        self._response = response
+        self.request = None
+        self.chat = self            # the client reaches it as chat.completions.create
+        self.completions = self
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        return False
-
-    def get_final_message(self):
-        return self.message
+    def create(self, **request):
+        self.request = request
+        return self._response
 
 
-class FakeSDK:
-    """Serves canned Messages in order, so the pause_turn resume loop can be driven."""
-
-    def __init__(self, replies):
-        self._replies = list(replies)
-        self.messages = self          # the client reaches it as client.messages.stream
-
-    def stream(self, **request):
-        return _FakeStream(self._replies.pop(0))
-
-
-def test_a_paused_call_resumes_and_the_last_response_wins(cfg, catalog):
-    # server-side tools pause the turn; the answer is the LAST response's text,
-    # never the working-up-to-it preamble spliced onto it
-    sdk = FakeSDK([_sdk_message("searching...", "pause_turn"),
-                   _sdk_message("42", "end_turn")])
-    response = ModelClient(catalog, cfg.call, client=sdk).call("claude-haiku-4-5", "q")
+def test_calls_go_through_openrouter_with_cached_tokens_carved_out(cfg, catalog):
+    # OpenRouter counts cached tokens inside prompt_tokens; they are split out so
+    # the cache-read price applies to exactly them
+    sdk = FakeOpenRouter(_or_response(text="42", cached=30, cost=0.00123))
+    response = ModelClient(catalog, cfg.call, client=sdk).call(
+        "anthropic/claude-haiku-4.5", "q", tools=["web_search", "web_fetch"])
     assert response.text == "42"
-    assert response.truncated is False
-    assert response.usage["input"] == 20 and response.usage["output"] == 10  # both turns billed
+    assert response.usage == {"input": 70, "output": 10, "cache_write": 0, "cache_read": 30}
+    assert response.cost == 0.00123                       # what OpenRouter billed
+    assert sdk.request["model"] == "anthropic/claude-haiku-4.5"
+    # OpenRouter server tools, in the tools array
+    assert sdk.request["tools"] == [{"type": "openrouter:web_search"},
+                                    {"type": "openrouter:web_fetch"}]
+    # no thinking unless the workflow asks — provider defaults would bill it
+    assert sdk.request["extra_body"]["reasoning"] == {"effort": "none"}
 
 
-def test_running_out_of_tool_turns_is_flagged_not_silent(cfg, catalog):
-    # still pause_turn when the cap runs out: the text is a partial turn, and
-    # nothing downstream can tell unless the response says so
-    turns = cfg.call.max_tool_turns
-    sdk = FakeSDK([_sdk_message(f"turn {i}", "pause_turn") for i in range(turns)])
-    response = ModelClient(catalog, cfg.call, client=sdk).call("claude-haiku-4-5", "q")
+def test_the_legacy_web_name_and_request_plugins(cfg, catalog):
+    # "web" (the deprecated one-plugin spelling) folds onto web_search, and
+    # call.plugins rides along on every request
+    cfg.call.plugins = ["response-healing"]
+    sdk = FakeOpenRouter(_or_response())
+    ModelClient(catalog, cfg.call, client=sdk).call(
+        "anthropic/claude-haiku-4.5", "q", tools=["web", "web_search"])
+    assert sdk.request["tools"] == [{"type": "openrouter:web_search"}]   # deduped
+    assert sdk.request["extra_body"]["plugins"] == [{"id": "response-healing"}]
+
+
+def test_effort_passes_through_and_length_is_truncated(cfg, catalog):
+    sdk = FakeOpenRouter(_or_response(finish="length"))
+    response = ModelClient(catalog, cfg.call, client=sdk).call(
+        "openai/gpt-5.6-sol", "q", effort="max")
+    assert sdk.request["extra_body"]["reasoning"] == {"effort": "max"}
     assert response.truncated is True
-    assert response.text == f"turn {turns - 1}"
+
+
+def test_the_prompt_carries_a_cache_breakpoint(cfg, catalog):
+    sdk = FakeOpenRouter(_or_response())
+    ModelClient(catalog, cfg.call, client=sdk).call(
+        "anthropic/claude-sonnet-5", "q", system="s")
+    for message in sdk.request["messages"]:
+        assert message["content"][0]["cache_control"] == {"type": "ephemeral"}
 
 
 # ---- catalog and pricing ----------------------------------------------------
@@ -121,8 +133,20 @@ def usage(**kw):
 
 
 def test_catalog_is_ordered_cheapest_first(catalog):
-    assert catalog.ids == ["claude-haiku-4-5", "claude-sonnet-5", "claude-opus-4-8"]
-    assert catalog.default == "claude-haiku-4-5"
+    # sorted by fetched OpenRouter prices, not by config order
+    assert catalog.ids == ["anthropic/claude-haiku-4.5", "openai/gpt-5.6-luna",
+                           "anthropic/claude-sonnet-5", "openai/gpt-5.6-terra",
+                           "anthropic/claude-opus-4.8", "openai/gpt-5.6-sol"]
+    assert catalog.default == "anthropic/claude-haiku-4.5"
+
+
+def test_catalog_carries_artificial_analysis_measurements(catalog):
+    # AA orders haiku's slug differently ("claude-4-5-haiku") — the token-set
+    # fallback still finds it, so every default-pool model is annotated
+    for spec in catalog.specs:
+        assert spec.aa is not None, spec.id
+    described = catalog.describe("openai/gpt-5.6-luna")
+    assert "intelligence" in described and "tok/s" in described
 
 
 def test_unknown_model_falls_back_to_default(catalog):
@@ -131,10 +155,12 @@ def test_unknown_model_falls_back_to_default(catalog):
 
 
 def test_cache_changes_the_price(catalog):
-    # the same 2,000 haiku input tokens, three ways: fresh, first send, resent
-    assert catalog.cost_usd("claude-haiku-4-5", usage(input=2000)) == pytest.approx(0.0020)
-    assert catalog.cost_usd("claude-haiku-4-5", usage(cache_write=2000)) == pytest.approx(0.0025)
-    assert catalog.cost_usd("claude-haiku-4-5", usage(cache_read=2000)) == pytest.approx(0.0002)
+    # the same 2,000 haiku input tokens, three ways: fresh, first send, resent —
+    # cache prices come per-model from OpenRouter ($1.25/M write, $0.10/M read)
+    haiku = "anthropic/claude-haiku-4.5"
+    assert catalog.cost_usd(haiku, usage(input=2000)) == pytest.approx(0.0020)
+    assert catalog.cost_usd(haiku, usage(cache_write=2000)) == pytest.approx(0.0025)
+    assert catalog.cost_usd(haiku, usage(cache_read=2000)) == pytest.approx(0.0002)
 
 
 # ---- grading ----------------------------------------------------------------
@@ -344,10 +370,10 @@ def test_a_task_can_supply_its_own_judge_rubric():
 
 
 def test_a_session_wires_config_catalog_and_client_together(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-used")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key-not-used")
     session = Session.load("gsm8k", ["designer.rounds=1"])
     assert session.cfg.designer.rounds == 1
-    assert session.catalog.ids[0] == "claude-haiku-4-5"
+    assert session.catalog.ids[0] == "anthropic/claude-haiku-4.5"
     assert session.client.catalog is session.catalog          # one catalog, not two
     assert session.evaluator(Grader(kind="numeric")).default_model == session.catalog.default
 
@@ -502,7 +528,8 @@ def test_the_meta_skill_in_the_skill_list_is_not_staged_twice(tmp_path):
 def test_round_one_asks_for_diversity_and_later_rounds_extend_the_frontier(cfg):
     benchmark = benchmark_fixture()
     first = _round_prompt(cfg, benchmark, 1, "")
-    assert "DIVERSE" in first and "claude-haiku-4-5" in first
+    assert "DIVERSE" in first and "anthropic/claude-haiku-4.5" in first
+    assert "Artificial Analysis" in first          # the menu carries measurements
     assert "must BE the number" in first          # the strict checker is spelled out
 
     archive = [Candidate("H", "", "code-a", dev=SplitScore("H", 0.8, 0.001))]
@@ -754,23 +781,38 @@ def test_an_allowed_tool_passes(cfg, catalog):
     from flowopt.runtime import CallMeter
 
     meter = CallMeter(FakeClient(catalog), catalog.default, 24, 120_000,
-                      allowed_tools=["code_execution"])
-    meter.call_model("q", tools=["code_execution"])          # must not raise
+                      allowed_tools=["web_search"])
+    meter.call_model("q", tools=["web_search"])              # must not raise
     assert meter.calls == 1
 
 
-def test_web_tools_cannot_combine_with_code_execution(cfg, catalog):
-    """The _20260209 web tools run code execution for dynamic filtering, so the
-    API forbids a second one alongside — reject it before it 400s a search."""
+def test_code_execution_is_rejected_with_a_pointer(cfg, catalog):
+    """There is no server-side code tool via OpenRouter. A workflow asking for it
+    gets told so by name, not a bare 'not allowed'."""
     from flowopt.runtime import CallMeter
 
     meter = CallMeter(FakeClient(catalog), catalog.default, 24, 120_000,
-                      allowed_tools=["code_execution", "web_search", "web_fetch"])
+                      allowed_tools=["web_search", "web_fetch"])
     with pytest.raises(RuntimeError) as raised:
-        meter.call_model("q", tools=["web_search", "code_execution"])
-    assert "cannot be combined" in str(raised.value)
-    meter.call_model("q", tools=["web_search"])              # either alone is fine
-    meter.call_model("q", tools=["code_execution"])
+        meter.call_model("q", tools=["code_execution"])
+    assert "no code_execution" in str(raised.value)
+    meter.call_model("q", tools=["web_search", "web_fetch"])    # the real menu is fine
+
+
+def test_the_meter_prefers_openrouters_billed_cost(catalog):
+    # OpenRouter reports what it actually charged; the catalog math is only the
+    # fallback for clients that don't attach it
+    from flowopt.runtime import CallMeter
+
+    class BilledClient(FakeClient):
+        def call(self, model, prompt, **kw):
+            response = super().call(model, prompt, **kw)
+            response.cost = 0.5
+            return response
+
+    meter = CallMeter(BilledClient(catalog), catalog.default, 24, 120_000)
+    meter.call_model("add 1 and 2")
+    assert meter.cost == 0.5
 
 
 def test_no_allowlist_means_no_restriction(cfg, catalog):

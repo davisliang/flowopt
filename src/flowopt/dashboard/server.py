@@ -15,6 +15,7 @@ that can reach this port can spend it.
 import argparse
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -26,17 +27,57 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from .. import analysis, costs, paths, runstore
-from ..client import TOOL_DEFS
+from .. import analysis, catalog as feeds, costs, paths, runstore
+from ..client import PLUGIN_DEFS, TOOL_DEFS
 from ..config import load_config, load_resolved
 from ..paths import ROOT
 from ..session import Session
 
 STATIC_INDEX = Path(__file__).parent / "static" / "index.html"
 
+_MODEL_ID = re.compile(r"[A-Za-z0-9][\w.:/-]*$")
+
+
+def _model_id(raw) -> str:
+    """One OpenRouter model id from the form, validated to id-shaped characters."""
+    raw = str(raw).strip()
+    if not _MODEL_ID.match(raw):
+        raise ValueError(raw)
+    return raw
+
+
+def _model_list(raw) -> str:
+    """The form's model pool as an OmegaConf dotlist value.
+
+    Accepts a JSON array (the POST body) or a comma-joined string (GET estimate
+    params). Ids are quoted so slashes and dots survive the dotlist grammar.
+    """
+    items = raw if isinstance(raw, list) else str(raw).split(",")
+    ids = [_model_id(item) for item in items if str(item).strip()]
+    if not ids:
+        raise ValueError("empty model list")
+    return "[" + ",".join(f"'{i}'" for i in ids) + "]"
+
+
+def _plugin_list(raw) -> str:
+    """The form's request-plugin selection, validated against the registry.
+
+    Unlike models this may legitimately be empty — [] turns every plugin off.
+    """
+    items = raw if isinstance(raw, list) else [p for p in str(raw).split(",") if p.strip()]
+    names = [str(p).strip() for p in items]
+    for name in names:
+        if name not in PLUGIN_DEFS:
+            raise ValueError(name)
+    return "[" + ",".join(f"'{n}'" for n in names) + "]"
+
+
 # Overrides the New Search form can set, and how to read each one. Anything not
 # on this list is rejected: values reach OmegaConf, and the form is not a shell.
 FORM_FIELDS = {
+    "models": _model_list,
+    "designer.model": _model_id,
+    "call.plugins": _plugin_list,
     "designer.rounds": int,
     "data.n_examples": int,
     "data.n_train": int,
@@ -558,6 +599,47 @@ def run_detail(run_id: str, log_lines: int = 400) -> dict:
     }
 
 
+def model_directory(refresh: bool = False) -> dict:
+    """Every model OpenRouter serves, annotated for the form's picker.
+
+    OpenRouter supplies existence, price and context; Artificial Analysis (when
+    ARTIFICIAL_ANALYSIS_API_KEY is set) the capability and speed measurements.
+    Both are read through the same disk cache the search itself uses, so what
+    the picker shows is what a run would bill against.
+
+    Args:
+        refresh: True refetches both feeds even if the cache is fresh.
+
+    Returns:
+        {"models": [...], "default_pool": [...], "default_designer": id,
+         "aa_available": bool} — models sorted cheapest first, each with id,
+        name, price_in/out (USD per 1M), context_length, thinks, and its AA
+        summary or None.
+    """
+    openrouter = feeds.openrouter_models(refresh)
+    aa = feeds.aa_models(refresh)
+    base = load_config()
+    models = []
+    for model_id, record in openrouter.items():
+        pricing = record.get("pricing", {})
+        per_m = lambda key: (float(pricing[key]) * 1_000_000
+                             if pricing.get(key) not in (None, "") else None)
+        models.append({
+            "id": model_id,
+            "name": record.get("name"),
+            "price_in": per_m("prompt"),
+            "price_out": per_m("completion"),
+            "context_length": record.get("context_length"),
+            "thinks": "reasoning" in (record.get("supported_parameters") or []),
+            "aa": feeds.aa_summary(model_id, aa),
+        })
+    models.sort(key=lambda m: (m["price_in"] or 0, m["price_out"] or 0, m["id"]))
+    return {"models": models,
+            "default_pool": list(base.models),
+            "default_designer": base.designer.model,
+            "aa_available": bool(aa)}
+
+
 def _dataset_shape(cfg) -> Optional[dict]:
     """Count a task's dataset rows and any routerllm partition labels.
 
@@ -685,8 +767,14 @@ class Handler(BaseHTTPRequestHandler):
                                    "fields": sorted(FORM_FIELDS),
                                    "workflow_tools": ALLOWED_WORKFLOW_TOOLS,
                                    "default_tools": list(base.runtime.tools),
+                                   "plugins": sorted(PLUGIN_DEFS),
+                                   "default_plugins": list(base.call.plugins),
                                    "skills": skills,
                                    "default_working_skills": bool(base.designer.working_skills)})
+            if path == "/api/models":
+                params = parse_qs(urlparse(self.path).query)
+                refresh = (params.get("refresh") or ["0"])[0] == "1"
+                return self._json(model_directory(refresh))
             if path == "/api/compare":
                 return self._json(compare_runs())
             if path == "/api/estimate":

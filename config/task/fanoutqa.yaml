@@ -11,6 +11,6 @@ task:
     - "Pat Burrell: Right, Mark Mulder: Left, Corey Patterson: Left, Jeff Austin: Right, JD Drew: Left"
     - "Macau: 680000, Maldives: 521000, Singapore: 5917000, Bahrain: 1463000, Hong Kong: 7498000"
 runtime:
-  tools: [web_search, web_fetch, code_execution]   # open-book: retrieve + aggregate
+  tools: [web_search, web_fetch]   # open-book: retrieve + aggregate
 data:
   n_examples: 40     # 24 dev / 16 test at dev_fraction 0.6; raise for a fuller run

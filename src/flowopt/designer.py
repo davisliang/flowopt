@@ -167,7 +167,14 @@ def run_agent(agent_dir: pathlib.Path, log=print, on_cost=None) -> None:
     # both variables keep that working even if `python` on its PATH is not this
     # interpreter.
     src = str(ROOT / "src")
-    env = {**os.environ, "PYTHONPATH": src, "FLOWOPT_SRC": src}
+    env = {**os.environ, "PYTHONPATH": src, "FLOWOPT_SRC": src,
+           # The agent session itself also runs through OpenRouter: Claude Code
+           # speaks its native protocol to OpenRouter's Anthropic-compatible
+           # endpoint, which is what lets ANY OpenRouter model be the designer.
+           # ANTHROPIC_API_KEY must be explicitly blank so the auth token wins.
+           "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
+           "ANTHROPIC_AUTH_TOKEN": os.environ.get("OPENROUTER_API_KEY", ""),
+           "ANTHROPIC_API_KEY": ""}
     process = subprocess.Popen(
         [sys.executable, "-u", "-m", "flowopt.proposer"],
         cwd=agent_dir, env=env,
@@ -357,12 +364,19 @@ def _round_prompt(cfg, benchmark, round_num: int, context: str,
     Returns:
         The full prompt for the agent.
     """
+    from .models import ModelCatalog                 # here to avoid an import cycle
     analysis = benchmark.analysis
+    # What the agent routes between: each pool model with its OpenRouter price
+    # and Artificial Analysis measurements, so delegation decisions rest on
+    # measured capability, not on what the agent assumes about a name.
+    catalog = ModelCatalog.from_config(cfg)
+    menu = "\n".join(f"- {catalog.describe(model_id)}" for model_id in catalog.ids)
     # What the agent needs to return an answer in the right SHAPE, not just with
     # the right value — the grader is strict, so "42 apples" scores 0 on a numeric
     # task. The examples come from the analyzer.
-    facts = ("Available models, cheap -> expensive: "
-             + ", ".join(m.id for m in cfg.models) + ".\n"
+    facts = ("Available models (all served via OpenRouter), cheapest -> most "
+             "expensive, with Artificial Analysis capability indices where "
+             "measured:\n" + menu + "\n\n"
              f"solve() must RETURN its final answer, scored by check="
              f"'{benchmark.grader.kind}'. Nothing is parsed out of prose.")
     if benchmark.grader.kind == "numeric":
@@ -376,15 +390,18 @@ def _round_prompt(cfg, benchmark, round_num: int, context: str,
     # forbidden one is rejected, so a wrong assumption here wastes candidates.
     tools = list(cfg.runtime.tools or [])
     if tools:
+        described = {"web_search": "web_search searches the web",
+                     "web_fetch": "web_fetch retrieves a URL already in the prompt",
+                     "subagent": ("subagent lets the model delegate a self-contained "
+                                  "subtask to a worker model mid-call")}
         facts += (f"\n\nServer-side tools workflows MAY use: {', '.join(tools)}. "
-                  "Pass them via tools=[...] on call_model. web_search searches the web; "
-                  "web_fetch retrieves a URL already in the prompt; code_execution runs Python. "
-                  "The web tools bundle their own code execution, so do NOT combine them with "
-                  "code_execution in a single call.")
+                  "Pass them via tools=[...] on call_model. "
+                  + "; ".join(described[t] for t in tools if t in described) + ". "
+                  "There is NO code_execution tool — models cannot run code, so exact "
+                  "arithmetic must come from the workflow's own Python, not from a tool.")
     else:
         facts += ("\n\nNo server-side tools are available for this task: workflows must "
-                  "NOT pass tools= to call_model. It is closed-book — no web search, no "
-                  "code execution.")
+                  "NOT pass tools= to call_model. It is closed-book — no web access.")
     # The budget only ever filtered the final recommendation, which meant the
     # agent could spend the whole search designing workflows nobody would pick.
     facts += (f"\n\nCost target: the workflow that gets recommended must cost no more "

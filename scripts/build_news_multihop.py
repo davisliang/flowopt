@@ -100,7 +100,7 @@ def main() -> None:
         "  answer_examples:\n"
         f"{examples_yaml}\n"
         "runtime:\n"
-        "  tools: [web_search, web_fetch, code_execution]   # retrieve per hop, then aggregate\n"
+        "  tools: [web_search, web_fetch]   # retrieve per hop, then aggregate\n"
         "data:\n"
         f"  n_examples: {len(rows)}     # use all of them ({len(rows)} multi-hop questions)\n")
 

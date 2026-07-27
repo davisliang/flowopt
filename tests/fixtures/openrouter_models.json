@@ -1,0 +1,828 @@
+{
+ "openai/gpt-5.6-luna": {
+  "id": "openai/gpt-5.6-luna",
+  "canonical_slug": "openai/gpt-5.6-luna-20260709",
+  "hugging_face_id": null,
+  "name": "OpenAI: GPT-5.6 Luna",
+  "created": 1783590864,
+  "description": "GPT-5.6 Luna is a fast, cost-efficient model in OpenAI's GPT-5.6 series. It is suited for high-volume, latency-sensitive tasks such as chat, classification, and lightweight agentic workflows, providing capable reasoning for...",
+  "context_length": 1050000,
+  "architecture": {
+   "modality": "text+image+file->text",
+   "input_modalities": [
+    "file",
+    "image",
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ],
+   "tokenizer": "GPT",
+   "instruct_type": null
+  },
+  "pricing": {
+   "prompt": "0.000001",
+   "completion": "0.000006",
+   "web_search": "0.01",
+   "input_cache_read": "0.0000001",
+   "input_cache_write": "0.00000125",
+   "overrides": [
+    {
+     "min_prompt_tokens": 272000,
+     "prompt": "0.000002",
+     "completion": "0.000009",
+     "input_cache_read": "0.0000002",
+     "input_cache_write": "0.0000025"
+    }
+   ]
+  },
+  "top_provider": {
+   "context_length": 1050000,
+   "max_completion_tokens": 128000,
+   "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+   "include_reasoning",
+   "max_completion_tokens",
+   "max_tokens",
+   "reasoning",
+   "reasoning_effort",
+   "response_format",
+   "seed",
+   "structured_outputs",
+   "tool_choice",
+   "tools"
+  ],
+  "default_parameters": {
+   "temperature": null,
+   "top_p": null,
+   "top_k": null,
+   "frequency_penalty": null,
+   "presence_penalty": null,
+   "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": "2026-02-16",
+  "expiration_date": null,
+  "links": {
+   "details": "/api/v1/models/openai/gpt-5.6-luna-20260709/endpoints"
+  },
+  "benchmarks": {
+   "design_arena": [],
+   "artificial_analysis": {
+    "intelligence_index": 51.2,
+    "coding_index": 71.4,
+    "agentic_index": 45.6
+   }
+  },
+  "reasoning": {
+   "mandatory": false,
+   "default_enabled": true,
+   "supported_efforts": [
+    "max",
+    "xhigh",
+    "high",
+    "medium",
+    "low",
+    "none"
+   ],
+   "default_effort": "medium"
+  }
+ },
+ "openai/gpt-5.6-terra": {
+  "id": "openai/gpt-5.6-terra",
+  "canonical_slug": "openai/gpt-5.6-terra-20260709",
+  "hugging_face_id": null,
+  "name": "OpenAI: GPT-5.6 Terra",
+  "created": 1783590857,
+  "description": "GPT-5.6 Terra is a balanced model in OpenAI's GPT-5.6 series, positioned between the flagship Sol tier and the cost-efficient Luna tier. It is suited for everyday coding, reasoning, and agentic...",
+  "context_length": 1050000,
+  "architecture": {
+   "modality": "text+image+file->text",
+   "input_modalities": [
+    "file",
+    "image",
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ],
+   "tokenizer": "GPT",
+   "instruct_type": null
+  },
+  "pricing": {
+   "prompt": "0.0000025",
+   "completion": "0.000015",
+   "web_search": "0.01",
+   "input_cache_read": "0.00000025",
+   "input_cache_write": "0.000003125",
+   "overrides": [
+    {
+     "min_prompt_tokens": 272000,
+     "prompt": "0.000005",
+     "completion": "0.0000225",
+     "input_cache_read": "0.0000005",
+     "input_cache_write": "0.00000625"
+    }
+   ]
+  },
+  "top_provider": {
+   "context_length": 1050000,
+   "max_completion_tokens": 128000,
+   "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+   "include_reasoning",
+   "max_completion_tokens",
+   "max_tokens",
+   "reasoning",
+   "reasoning_effort",
+   "response_format",
+   "seed",
+   "structured_outputs",
+   "tool_choice",
+   "tools"
+  ],
+  "default_parameters": {
+   "temperature": null,
+   "top_p": null,
+   "top_k": null,
+   "frequency_penalty": null,
+   "presence_penalty": null,
+   "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": "2026-02-16",
+  "expiration_date": null,
+  "links": {
+   "details": "/api/v1/models/openai/gpt-5.6-terra-20260709/endpoints"
+  },
+  "benchmarks": {
+   "design_arena": [],
+   "artificial_analysis": {
+    "intelligence_index": 55,
+    "coding_index": 76.7,
+    "agentic_index": 47.4
+   }
+  },
+  "reasoning": {
+   "mandatory": false,
+   "default_enabled": true,
+   "supported_efforts": [
+    "max",
+    "xhigh",
+    "high",
+    "medium",
+    "low",
+    "none"
+   ],
+   "default_effort": "medium"
+  }
+ },
+ "openai/gpt-5.6-sol": {
+  "id": "openai/gpt-5.6-sol",
+  "canonical_slug": "openai/gpt-5.6-sol-20260709",
+  "hugging_face_id": null,
+  "name": "OpenAI: GPT-5.6 Sol",
+  "created": 1783590850,
+  "description": "GPT-5.6 Sol is the flagship model in OpenAI's GPT-5.6 series. It is suited for complex reasoning, coding, and agentic workflows, and is particularly strong at command-line and multi-step coding tasks...",
+  "context_length": 1050000,
+  "architecture": {
+   "modality": "text+image+file->text",
+   "input_modalities": [
+    "file",
+    "image",
+    "text"
+   ],
+   "output_modalities": [
+    "text"
+   ],
+   "tokenizer": "GPT",
+   "instruct_type": null
+  },
+  "pricing": {
+   "prompt": "0.000005",
+   "completion": "0.00003",
+   "web_search": "0.01",
+   "input_cache_read": "0.0000005",
+   "input_cache_write": "0.00000625",
+   "overrides": [
+    {
+     "min_prompt_tokens": 272000,
+     "prompt": "0.00001",
+     "completion": "0.000045",
+     "input_cache_read": "0.000001",
+     "input_cache_write": "0.0000125"
+    }
+   ]
+  },
+  "top_provider": {
+   "context_length": 1050000,
+   "max_completion_tokens": 128000,
+   "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+   "include_reasoning",
+   "max_completion_tokens",
+   "max_tokens",
+   "reasoning",
+   "reasoning_effort",
+   "response_format",
+   "seed",
+   "structured_outputs",
+   "tool_choice",
+   "tools"
+  ],
+  "default_parameters": {
+   "temperature": null,
+   "top_p": null,
+   "top_k": null,
+   "frequency_penalty": null,
+   "presence_penalty": null,
+   "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": "2026-02-16",
+  "expiration_date": null,
+  "links": {
+   "details": "/api/v1/models/openai/gpt-5.6-sol-20260709/endpoints"
+  },
+  "benchmarks": {
+   "design_arena": [],
+   "artificial_analysis": {
+    "intelligence_index": 58.9,
+    "coding_index": 77.4,
+    "agentic_index": 54
+   }
+  },
+  "reasoning": {
+   "mandatory": false,
+   "default_enabled": true,
+   "supported_efforts": [
+    "max",
+    "xhigh",
+    "high",
+    "medium",
+    "low",
+    "none"
+   ],
+   "default_effort": "medium"
+  }
+ },
+ "anthropic/claude-sonnet-5": {
+  "id": "anthropic/claude-sonnet-5",
+  "canonical_slug": "anthropic/claude-sonnet-5-20260630",
+  "hugging_face_id": null,
+  "name": "Anthropic: Claude Sonnet 5",
+  "created": 1782843083,
+  "description": "Sonnet 5 is Anthropic's most capable Sonnet-class model, with frontier performance across coding, agents, and professional work. It supports adaptive thinking with selectable reasoning effort levels (low, medium, high, max,...",
+  "context_length": 1000000,
+  "architecture": {
+   "modality": "text+image+file->text",
+   "input_modalities": [
+    "text",
+    "image",
+    "file"
+   ],
+   "output_modalities": [
+    "text"
+   ],
+   "tokenizer": "Claude",
+   "instruct_type": null
+  },
+  "pricing": {
+   "prompt": "0.000002",
+   "completion": "0.00001",
+   "web_search": "0.01",
+   "input_cache_read": "0.0000002",
+   "input_cache_write": "0.0000025",
+   "input_cache_write_1h": "0.000004"
+  },
+  "top_provider": {
+   "context_length": 1000000,
+   "max_completion_tokens": 128000,
+   "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+   "include_reasoning",
+   "max_completion_tokens",
+   "max_tokens",
+   "reasoning",
+   "reasoning_effort",
+   "response_format",
+   "stop",
+   "structured_outputs",
+   "tool_choice",
+   "tools",
+   "verbosity"
+  ],
+  "default_parameters": {
+   "temperature": null,
+   "top_p": null,
+   "top_k": null,
+   "frequency_penalty": null,
+   "presence_penalty": null,
+   "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+   "details": "/api/v1/models/anthropic/claude-sonnet-5-20260630/endpoints"
+  },
+  "benchmarks": {
+   "design_arena": [
+    {
+     "arena": "agents",
+     "category": "agenticgamedev",
+     "elo": 1234,
+     "win_rate": 55.1,
+     "rank": 4
+    },
+    {
+     "arena": "agents",
+     "category": "androidnative",
+     "elo": 1244,
+     "win_rate": 53.1,
+     "rank": 8
+    },
+    {
+     "arena": "agents",
+     "category": "fullstack",
+     "elo": 1276,
+     "win_rate": 59,
+     "rank": 6
+    },
+    {
+     "arena": "agents",
+     "category": "godotgamedev",
+     "elo": 1268,
+     "win_rate": 59.7,
+     "rank": 4
+    },
+    {
+     "arena": "agents",
+     "category": "htmlslides",
+     "elo": 1231,
+     "win_rate": 54,
+     "rank": 5
+    },
+    {
+     "arena": "agents",
+     "category": "python-pptxslides",
+     "elo": 1245,
+     "win_rate": 55,
+     "rank": 7
+    },
+    {
+     "arena": "agents",
+     "category": "webapps",
+     "elo": 1301,
+     "win_rate": 58.1,
+     "rank": 4
+    },
+    {
+     "arena": "models",
+     "category": "3d",
+     "elo": 1321,
+     "win_rate": 57,
+     "rank": 9
+    },
+    {
+     "arena": "models",
+     "category": "asciiart",
+     "elo": 1230,
+     "win_rate": 51.2,
+     "rank": 13
+    },
+    {
+     "arena": "models",
+     "category": "codecategories",
+     "elo": 1312,
+     "win_rate": 56.8,
+     "rank": 8
+    },
+    {
+     "arena": "models",
+     "category": "dataviz",
+     "elo": 1281,
+     "win_rate": 54.4,
+     "rank": 18
+    },
+    {
+     "arena": "models",
+     "category": "gamedev",
+     "elo": 1345,
+     "win_rate": 59.9,
+     "rank": 3
+    },
+    {
+     "arena": "models",
+     "category": "svg",
+     "elo": 1241,
+     "win_rate": 53.7,
+     "rank": 14
+    },
+    {
+     "arena": "models",
+     "category": "uicomponent",
+     "elo": 1317,
+     "win_rate": 56.5,
+     "rank": 8
+    },
+    {
+     "arena": "models",
+     "category": "website",
+     "elo": 1314,
+     "win_rate": 57.6,
+     "rank": 9
+    }
+   ],
+   "artificial_analysis": {
+    "intelligence_index": 53.4,
+    "coding_index": 71.5,
+    "agentic_index": 46.7
+   }
+  },
+  "reasoning": {
+   "mandatory": false,
+   "default_enabled": true,
+   "supported_efforts": [
+    "max",
+    "xhigh",
+    "high",
+    "medium",
+    "low"
+   ],
+   "default_effort": "high"
+  }
+ },
+ "anthropic/claude-opus-4.8": {
+  "id": "anthropic/claude-opus-4.8",
+  "canonical_slug": "anthropic/claude-4.8-opus-20260528",
+  "hugging_face_id": null,
+  "name": "Anthropic: Claude Opus 4.8",
+  "created": 1779905091,
+  "description": "Claude Opus 4.8 is Anthropic's most capable generally available model in the Opus family. It supports text, image, and file inputs with text output, with reasoning support and a 1M-token...",
+  "context_length": 1000000,
+  "architecture": {
+   "modality": "text+image+file->text",
+   "input_modalities": [
+    "text",
+    "image",
+    "file"
+   ],
+   "output_modalities": [
+    "text"
+   ],
+   "tokenizer": "Claude",
+   "instruct_type": null
+  },
+  "pricing": {
+   "prompt": "0.000005",
+   "completion": "0.000025",
+   "web_search": "0.01",
+   "input_cache_read": "0.0000005",
+   "input_cache_write": "0.00000625",
+   "input_cache_write_1h": "0.00001"
+  },
+  "top_provider": {
+   "context_length": 1000000,
+   "max_completion_tokens": 128000,
+   "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+   "include_reasoning",
+   "max_completion_tokens",
+   "max_tokens",
+   "reasoning",
+   "reasoning_effort",
+   "response_format",
+   "stop",
+   "structured_outputs",
+   "temperature",
+   "tool_choice",
+   "tools",
+   "verbosity"
+  ],
+  "default_parameters": {
+   "temperature": null,
+   "top_p": null,
+   "top_k": null,
+   "frequency_penalty": null,
+   "presence_penalty": null,
+   "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+   "details": "/api/v1/models/anthropic/claude-4.8-opus-20260528/endpoints"
+  },
+  "benchmarks": {
+   "design_arena": [
+    {
+     "arena": "agents",
+     "category": "agenticgamedev",
+     "elo": 1260,
+     "win_rate": 61.5,
+     "rank": 2
+    },
+    {
+     "arena": "agents",
+     "category": "agentichtmlslides",
+     "elo": 1227,
+     "win_rate": 55.6,
+     "rank": 4
+    },
+    {
+     "arena": "agents",
+     "category": "agenticslides",
+     "elo": 1294,
+     "win_rate": 64.8,
+     "rank": 2
+    },
+    {
+     "arena": "agents",
+     "category": "agenticslides(html)",
+     "elo": 1230,
+     "win_rate": 56,
+     "rank": 4
+    },
+    {
+     "arena": "agents",
+     "category": "agenticslides(python-pptx)",
+     "elo": 1310,
+     "win_rate": 68.9,
+     "rank": 2
+    },
+    {
+     "arena": "agents",
+     "category": "androidnative",
+     "elo": 1342,
+     "win_rate": 67.2,
+     "rank": 1
+    },
+    {
+     "arena": "agents",
+     "category": "fullstack",
+     "elo": 1300,
+     "win_rate": 63,
+     "rank": 3
+    },
+    {
+     "arena": "agents",
+     "category": "godotgamedev",
+     "elo": 1254,
+     "win_rate": 58.4,
+     "rank": 5
+    },
+    {
+     "arena": "agents",
+     "category": "htmlslides",
+     "elo": 1237,
+     "win_rate": 57,
+     "rank": 3
+    },
+    {
+     "arena": "agents",
+     "category": "mobileapps",
+     "elo": 1277,
+     "win_rate": 58.4,
+     "rank": 2
+    },
+    {
+     "arena": "agents",
+     "category": "pptxslides",
+     "elo": 1306,
+     "win_rate": 67.9,
+     "rank": 2
+    },
+    {
+     "arena": "agents",
+     "category": "python-pptxslides",
+     "elo": 1298,
+     "win_rate": 65.9,
+     "rank": 4
+    },
+    {
+     "arena": "agents",
+     "category": "webapps",
+     "elo": 1271,
+     "win_rate": 53.3,
+     "rank": 6
+    },
+    {
+     "arena": "models",
+     "category": "3d",
+     "elo": 1278,
+     "win_rate": 53.4,
+     "rank": 25
+    },
+    {
+     "arena": "models",
+     "category": "asciiart",
+     "elo": 1303,
+     "win_rate": 62.8,
+     "rank": 5
+    },
+    {
+     "arena": "models",
+     "category": "codecategories",
+     "elo": 1270,
+     "win_rate": 53.7,
+     "rank": 28
+    },
+    {
+     "arena": "models",
+     "category": "dataviz",
+     "elo": 1266,
+     "win_rate": 54.7,
+     "rank": 23
+    },
+    {
+     "arena": "models",
+     "category": "gamedev",
+     "elo": 1300,
+     "win_rate": 54.8,
+     "rank": 17
+    },
+    {
+     "arena": "models",
+     "category": "svg",
+     "elo": 1226,
+     "win_rate": 53.4,
+     "rank": 18
+    },
+    {
+     "arena": "models",
+     "category": "uicomponent",
+     "elo": 1277,
+     "win_rate": 54.2,
+     "rank": 24
+    },
+    {
+     "arena": "models",
+     "category": "website",
+     "elo": 1268,
+     "win_rate": 54.1,
+     "rank": 28
+    }
+   ],
+   "artificial_analysis": {
+    "intelligence_index": 55.7,
+    "coding_index": 74.3,
+    "agentic_index": 47.2
+   }
+  },
+  "reasoning": {
+   "mandatory": false,
+   "default_enabled": false,
+   "supported_efforts": [
+    "max",
+    "xhigh",
+    "high",
+    "medium",
+    "low"
+   ],
+   "default_effort": "high"
+  }
+ },
+ "anthropic/claude-haiku-4.5": {
+  "id": "anthropic/claude-haiku-4.5",
+  "canonical_slug": "anthropic/claude-4.5-haiku-20251001",
+  "hugging_face_id": "",
+  "name": "Anthropic: Claude Haiku 4.5",
+  "created": 1760547638,
+  "description": "Claude Haiku 4.5 is Anthropic\u2019s fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude models. Matching Claude Sonnet 4\u2019s performance...",
+  "context_length": 200000,
+  "architecture": {
+   "modality": "text+image+file->text",
+   "input_modalities": [
+    "text",
+    "image",
+    "file"
+   ],
+   "output_modalities": [
+    "text"
+   ],
+   "tokenizer": "Claude",
+   "instruct_type": null
+  },
+  "pricing": {
+   "prompt": "0.000001",
+   "completion": "0.000005",
+   "web_search": "0.01",
+   "input_cache_read": "0.0000001",
+   "input_cache_write": "0.00000125",
+   "input_cache_write_1h": "0.000002"
+  },
+  "top_provider": {
+   "context_length": 200000,
+   "max_completion_tokens": 64000,
+   "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+   "include_reasoning",
+   "max_completion_tokens",
+   "max_tokens",
+   "reasoning",
+   "response_format",
+   "stop",
+   "structured_outputs",
+   "temperature",
+   "tool_choice",
+   "tools",
+   "top_k",
+   "top_p"
+  ],
+  "default_parameters": {
+   "temperature": null,
+   "top_p": null,
+   "top_k": null,
+   "frequency_penalty": null,
+   "presence_penalty": null,
+   "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+   "details": "/api/v1/models/anthropic/claude-4.5-haiku-20251001/endpoints"
+  },
+  "benchmarks": {
+   "design_arena": [
+    {
+     "arena": "models",
+     "category": "3d",
+     "elo": 1130,
+     "win_rate": 41.1,
+     "rank": 74
+    },
+    {
+     "arena": "models",
+     "category": "asciiart",
+     "elo": 1177,
+     "win_rate": 49.3,
+     "rank": 36
+    },
+    {
+     "arena": "models",
+     "category": "codecategories",
+     "elo": 1145,
+     "win_rate": 44.9,
+     "rank": 73
+    },
+    {
+     "arena": "models",
+     "category": "dataviz",
+     "elo": 1154,
+     "win_rate": 45.6,
+     "rank": 69
+    },
+    {
+     "arena": "models",
+     "category": "gamedev",
+     "elo": 1153,
+     "win_rate": 44.6,
+     "rank": 65
+    },
+    {
+     "arena": "models",
+     "category": "svg",
+     "elo": 1075,
+     "win_rate": 39.1,
+     "rank": 60
+    },
+    {
+     "arena": "models",
+     "category": "uicomponent",
+     "elo": 1136,
+     "win_rate": 42.7,
+     "rank": 68
+    },
+    {
+     "arena": "models",
+     "category": "website",
+     "elo": 1147,
+     "win_rate": 45.1,
+     "rank": 73
+    }
+   ],
+   "artificial_analysis": {
+    "intelligence_index": 29.6,
+    "coding_index": 43.9,
+    "agentic_index": 16.4
+   }
+  },
+  "reasoning": {
+   "mandatory": false
+  }
+ }
+}

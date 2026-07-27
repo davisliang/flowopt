@@ -108,7 +108,7 @@ def main() -> None:
         "  answer_examples:\n"
         f"{examples_yaml}\n"
         "runtime:\n"
-        "  tools: [web_search, web_fetch, code_execution]   # open-book: retrieve + aggregate\n"
+        "  tools: [web_search, web_fetch]   # open-book: retrieve + aggregate\n"
         "data:\n"
         "  n_examples: 40     # 24 dev / 16 test at dev_fraction 0.6; raise for a fuller run\n")
 
@@ -139,7 +139,7 @@ def main() -> None:
         f"{examples_yaml}\n"
         f"  judge_rubric: >-\n    {JUDGE_RUBRIC}\n"
         "runtime:\n"
-        "  tools: [web_search, web_fetch, code_execution]   # open-book: retrieve + aggregate\n"
+        "  tools: [web_search, web_fetch]   # open-book: retrieve + aggregate\n"
         "data:\n"
         "  n_examples: 40     # 24 dev / 16 test at dev_fraction 0.6\n"
         "judge:\n"

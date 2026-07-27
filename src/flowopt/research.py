@@ -48,11 +48,15 @@ def run_research(cfg, benchmark: Benchmark, log=print, on_cost=None) -> str:
     skills_dir.mkdir(parents=True)
     shutil.copytree(SKILLS_DIR / RESEARCH_SKILL, skills_dir / RESEARCH_SKILL)
 
+    from .models import ModelCatalog                 # here to avoid an import cycle
+    catalog = ModelCatalog.from_config(cfg)
+    menu = "\n".join(f"- {catalog.describe(model_id)}" for model_id in catalog.ids)
     (agent_dir / "proposer_config.json").write_text(json.dumps({
         "model": cfg.designer.model,
         "skills": [RESEARCH_SKILL],
         "allowed_tools": list(cfg.designer.allowed_tools),
-        "prompt": prompts.render("research_task", description=benchmark.description),
+        "prompt": prompts.render("research_task", description=benchmark.description,
+                                 models=menu),
     }))
 
     run_agent(agent_dir, log=log, on_cost=on_cost)

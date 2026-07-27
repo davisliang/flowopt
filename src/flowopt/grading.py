@@ -91,7 +91,7 @@ class Grader:
     """
     kind: str
     client: Optional[ModelClient] = None
-    judge_model: str = "claude-haiku-4-5"
+    judge_model: str = "anthropic/claude-haiku-4.5"
     task: str = ""
     rubric: str = ""
     grade_fn: Optional[Callable[[str, dict], float]] = None

@@ -6,7 +6,8 @@ hand-writing prompting strategies, a design agent **writes workflow programs** a
 hands you the accuracy/cost **Pareto frontier** to pick from.
 
 ```sh
-export ANTHROPIC_API_KEY=...
+export OPENROUTER_API_KEY=...            # every model call goes through OpenRouter
+export ARTIFICIAL_ANALYSIS_API_KEY=...   # optional: capability indices in the picker & prompts
 uv sync
 uv run flowopt-ui --open                        # the UI, at :8770
 uv run flowopt --task gsm8k                     # or headless
@@ -42,10 +43,20 @@ searches, watches them run, and compares what they found:
   **describe a task** in free text and optionally upload your own `.jsonl`.
   Upload nothing and the examples are generated. **Train / dev / test counts** set
   each split's size explicitly (seeded random sampling); blank splits the task's
-  pool by the configured fraction. **Tools workflows may use** —
-  code_execution, web_search and web_fetch — are checkboxes; uncheck the web
-  tools for a closed-book task so no candidate can look answers up, and its
-  numbers stay comparable to a closed-book baseline. **Skills** show as
+  pool by the configured fraction. **Models** — pick the pool the workflows may
+  route over from everything on OpenRouter (343 models and counting), each shown
+  with its OpenRouter price and Artificial Analysis intelligence / coding / math
+  indices and speed, and pick the **design agent model** the same way; the agent
+  is told the pool's measurements and researches how those models compare for
+  the task before designing. **Tools workflows may use** — OpenRouter's server
+  tools web_search, web_fetch and subagent (in-call delegation to a worker
+  model, off by default; there is no server-side code execution) — are
+  checkboxes; uncheck them all for a closed-book task so no candidate can look
+  answers up, and its numbers stay comparable to a closed-book baseline.
+  **Request plugins** — response-healing (auto-repair malformed JSON) and
+  context-compression (middle-out truncation), applied to every call, both off
+  by default because they trade correctness visibility for convenience.
+  **Skills** show as
   checkboxes too: the core set is locked on (the design prompt drives the agent
   through those by name, so dropping one would buy a round of malformed
   candidates), any skill you add under `skills/<name>/SKILL.md` appears as an
@@ -216,7 +227,7 @@ things, and all the generality rides on them:
    got wrong, plus recent dominated near-misses (`designer.dominated_shown` caps how
    many) — and asked for new ones that **extend the accuracy/cost frontier**: cheaper at
    a given accuracy, more accurate at a given cost, or filling a gap (a cheaper model,
-   fewer calls, difficulty routing, code execution instead of many samples). Feeding
+   fewer calls, difficulty routing, exact computation in solve()'s own Python). Feeding
    back the per-example failures, not just a scalar accuracy, is what tells a new design
    where the current ones break. Every candidate is scored on dev and added to the archive.
    With `designer.working_skills=true` the agent also keeps a **run-scoped `working_skills/`
@@ -233,7 +244,7 @@ things, and all the generality rides on them:
 
 ```
 config/                 every knob (OmegaConf)
-  config.yaml           models + prices, call, runtime, judge, data, designer, report
+  config.yaml           models (OpenRouter ids), call, runtime, judge, data, designer, report
   task/*.yaml           one file per task: the seed prompt, optional data + grader
 prompts/*.md            every prompt sent to a model, as text (${placeholders})
 skills/                 what the design agent is taught
@@ -245,8 +256,12 @@ skills/                 what the design agent is taught
 src/flowopt/
   config.py             typed config schema + loading/overrides
   session.py            Session: config + catalog + client, wired once
-  models.py             ModelCatalog: ids, prices, capabilities
+  catalog.py            the model feeds: OpenRouter (prices) + Artificial Analysis
+                        (capability / speed indices), disk-cached and slug-joined
+  models.py             ModelCatalog: ids, prices, capabilities — built from the feeds
   client.py             ModelClient — the one place anything reaches a model
+                        (OpenRouter chat completions; the design agent runs through
+                        OpenRouter's Anthropic-compatible endpoint)
   prompts.py            fills prompts/*.md
   grading.py            Grader: numeric / exact / llm_judge / custom
   runtime.py            Reply, CallMeter, compile_solve, Evaluator, SplitScore

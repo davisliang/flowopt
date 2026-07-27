@@ -737,12 +737,50 @@ def test_extra_skills_add_to_the_core_set_never_replace_it(runs_dir, monkeypatch
     assert cfg.designer.working_skills is False
 
 
+def test_the_model_directory_merges_openrouter_and_artificial_analysis():
+    directory = server.model_directory()
+    ids = [m["id"] for m in directory["models"]]
+    assert "anthropic/claude-haiku-4.5" in ids
+    assert directory["aa_available"] is True
+    luna = next(m for m in directory["models"] if m["id"] == "openai/gpt-5.6-luna")
+    assert luna["price_in"] == 1.0 and luna["thinks"] is True
+    assert luna["aa"]["intelligence"] is not None
+    assert directory["default_pool"] and directory["default_designer"]
+    prices = [m["price_in"] or 0 for m in directory["models"]]
+    assert prices == sorted(prices)                     # cheapest first
+
+
+def test_the_form_can_set_the_pool_and_the_designer(runs_dir, monkeypatch):
+    monkeypatch.setattr(server.subprocess, "Popen",
+                        lambda *a, **k: type("P", (), {"pid": 4242})())
+    result = server.start_run("gsm8k", {
+        "models": ["anthropic/claude-haiku-4.5", "openai/gpt-5.6-sol"],
+        "designer.model": "openai/gpt-5.6-sol"})
+    assert result["ok"] is True, result
+    cfg = load_resolved(runstore.run_dir(result["run_id"]) / "config.yaml")
+    assert list(cfg.models) == ["anthropic/claude-haiku-4.5", "openai/gpt-5.6-sol"]
+    assert cfg.designer.model == "openai/gpt-5.6-sol"
+    # values reach OmegaConf, so only id-shaped strings pass — the form is not a shell
+    assert "bad value" in server.start_run("gsm8k", {"models": ["nope; rm -rf /"]})["error"]
+
+
+def test_the_form_can_set_request_plugins(runs_dir, monkeypatch):
+    monkeypatch.setattr(server.subprocess, "Popen",
+                        lambda *a, **k: type("P", (), {"pid": 4242})())
+    result = server.start_run("gsm8k", {"call.plugins": ["response-healing"]})
+    assert result["ok"] is True, result
+    cfg = load_resolved(runstore.run_dir(result["run_id"]) / "config.yaml")
+    assert list(cfg.call.plugins) == ["response-healing"]
+    # only registry names pass
+    assert "bad value" in server.start_run("gsm8k", {"call.plugins": ["telepathy"]})["error"]
+
+
 def test_the_tools_selection_persists_and_is_validated(runs_dir, monkeypatch):
     monkeypatch.setattr(server.subprocess, "Popen",
                         lambda *a, **k: type("P", (), {"pid": 4242})())
     # a bogus tool is refused
     assert "unknown tool" in server.start_run("gsm8k", {}, tools=["telepathy"])["error"]
-    assert set(server.ALLOWED_WORKFLOW_TOOLS) == {"code_execution", "web_search", "web_fetch"}
+    assert set(server.ALLOWED_WORKFLOW_TOOLS) == {"web_search", "web_fetch", "subagent"}
     # a closed-book choice is written to the run's config
     result = server.start_run("gsm8k", {}, tools=[])
     assert result["ok"] is True

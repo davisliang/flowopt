@@ -2,27 +2,22 @@
 # (`flowopt --task gsm8k designer.rounds=1 runtime.concurrency=4`), or
 # from a task file under config/task/.
 
-# The models the optimizer may use, cheapest -> most expensive. This list is the
-# search pool, the routing menu a workflow sees, AND the price table cost is
-# measured with, so nothing can drift out of sync.
-#   price_in / price_out : USD per 1,000,000 tokens
-#   thinks               : supports the effort / adaptive-thinking params
+# The models the optimizer may use: OpenRouter ids (any model on
+# https://openrouter.ai/models works — all calls go through OpenRouter, so
+# OPENROUTER_API_KEY is the one key a run needs). Prices come from OpenRouter
+# and capability / speed measurements from Artificial Analysis (set
+# ARTIFICIAL_ANALYSIS_API_KEY to enable), so this list is only WHICH models —
+# nothing here to drift out of sync. The catalog sorts them cheapest first.
 models:
-  - id: claude-haiku-4-5
-    price_in: 1.0
-    price_out: 5.0
-    thinks: false
-  - id: claude-sonnet-5
-    price_in: 3.0
-    price_out: 15.0
-    thinks: true
-  - id: claude-opus-4-8
-    price_in: 5.0
-    price_out: 25.0
-    thinks: true
+  - anthropic/claude-haiku-4.5
+  - openai/gpt-5.6-luna
+  - openai/gpt-5.6-terra
+  - anthropic/claude-sonnet-5
+  - anthropic/claude-opus-4.8
+  - openai/gpt-5.6-sol
 
 # The model that analyzes the task and generates the dataset.
-analysis_model: claude-opus-4-8
+analysis_model: anthropic/claude-opus-4.8
 
 # One model call.
 call:
@@ -32,12 +27,17 @@ call:
   # effort="max" a 16k ceiling was measured burning the whole budget on thinking
   # and returning an empty answer.
   max_output_tokens: 64000
-  # Cap on API calls while a server-side tool keeps pausing the turn.
-  max_tool_turns: 5
-  # Prompt-cache multipliers on the input rate: a write costs a bit more once,
-  # a read is ~90% off.
+  # Fallback prompt-cache multipliers on the input rate, used only for models
+  # OpenRouter lists no cache price for: a write costs a bit more once, a read
+  # is ~90% off.
   cache_write_multiplier: 1.25
   cache_read_multiplier: 0.10
+  # OpenRouter request plugins applied to every call (not model-callable tools —
+  # each runs once per request): response-healing repairs malformed JSON output,
+  # context-compression truncates middle-out when a prompt exceeds the context.
+  # Both off by default: healing can mask a broken workflow, compression can
+  # silently drop the part of the prompt that mattered.
+  plugins: []
 
 # The per-query budget a candidate workflow runs under. (Candidates always run
 # with a restricted import list — see compile_solve in
@@ -46,13 +46,16 @@ runtime:
   max_model_calls: 24      # model calls one query may make
   max_tokens: 120000       # tokens one query may spend
   concurrency: 8           # examples scored at once (API latency dominates)
-  # Server-side tools a workflow may call. Drop one to forbid it; set to [] for a
-  # closed-book task, so no candidate can reach the web or run code.
-  tools: [code_execution, web_search, web_fetch]
+  # Server-side tools a workflow may call (OpenRouter server tools). Drop one to
+  # forbid it; set to [] for a closed-book task, so no candidate can reach the
+  # web. "subagent" (in-call delegation to a worker model) exists too but stays
+  # off by default — workflows already delegate by routing call_model. (There is
+  # no code_execution — OpenRouter runs no code server-side.)
+  tools: [web_search, web_fetch]
 
 # Grading free-form answers (check_type: llm_judge).
 judge:
-  model: claude-haiku-4-5
+  model: anthropic/claude-haiku-4.5
   # The bar a task-specific rubric must clear to be used at all: scored under it
   # an ideal answer must reach min_gold_score, an empty answer must stay under
   # max_empty_score. A rubric failing either is dropped for the generic judge.
@@ -68,9 +71,10 @@ data:
   free_form_batch_size: 5  # free-form answers are long, so smaller batches
   max_stalls: 3            # give up after this many batches add nothing new
 
-# The design agent.
+# The design agent. Any OpenRouter model id — the agent session runs through
+# OpenRouter's Anthropic-compatible endpoint, so the designer is selectable too.
 designer:
-  model: claude-opus-4-8
+  model: anthropic/claude-opus-4.8
   rounds: 3                # design rounds; each one costs real money
   research: true           # web-research phase before designing, writing research_notes.md
   working_skills: false    # give the agent a working_skills/ dir it reads+writes across a run's rounds

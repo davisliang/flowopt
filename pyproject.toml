@@ -3,10 +3,10 @@ name = "flowopt"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "anthropic>=0.116.0",
     "claude-agent-sdk>=0.2.120",
     "matplotlib>=3.11.0",
     "omegaconf>=2.3.0",
+    "openai>=2.0.0",
     "pydantic>=2.0",
 ]
 
