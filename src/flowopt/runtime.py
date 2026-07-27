@@ -9,6 +9,8 @@ import builtins
 import json
 import re
 import statistics
+import threading
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -377,7 +379,7 @@ class Evaluator:
         self.cfg = runtime_cfg
         self.default_model = default_model or client.catalog.default
 
-    def run(self, program: dict, dataset: list[dict]) -> SplitScore:
+    def run(self, program: dict, dataset: list[dict], log=None) -> SplitScore:
         """Run one candidate over a dataset and score it.
 
         Each example gets its own CallMeter, so examples share nothing and run
@@ -390,6 +392,10 @@ class Evaluator:
                 — operator source injected before the code (see `compile_solve`).
             dataset: Examples, each `{"question": ..., "answer": ...}`. A custom
                 grader may read other keys too.
+            log: Optional line sink for per-example progress ticks. Each tick is
+                completion order, score, cost and duration — deliberately NO
+                question text, because the run log is readable by the design
+                agent and dev/test content must never reach it.
 
         Returns:
             A SplitScore. If the program didn't compile, `error` is set and
@@ -407,12 +413,27 @@ class Evaluator:
         except Exception as error:
             return SplitScore(name=program["name"], error=f"compile: {error}")
 
+        done, tick = 0, threading.Lock()
+
+        def run_one(item: dict) -> dict:
+            nonlocal done
+            start = time.time()
+            record = self._run_one(solve, item)
+            with tick:
+                done += 1
+                k = done
+            if log:
+                error = " · ERROR" if record["error"] else ""
+                log(f"      {k}/{len(dataset)} · score {record['score']:.2f} · "
+                    f"${record['cost']:.4f} · {time.time() - start:.0f}s{error}")
+            return record
+
         workers = min(self.cfg.concurrency, len(dataset))
         if workers > 1:
             with ThreadPoolExecutor(max_workers=workers) as pool:
-                records = list(pool.map(lambda item: self._run_one(solve, item), dataset))
+                records = list(pool.map(run_one, dataset))
         else:
-            records = [self._run_one(solve, item) for item in dataset]
+            records = [run_one(item) for item in dataset]
 
         return SplitScore(
             name=program["name"],
@@ -441,10 +462,33 @@ class Evaluator:
             answer = unwrap_answer(solve(item["question"], meter.call_model))
             score = self.grader.score(answer, item)
         except Exception as failure:
+            # A candidate's own failures score 0 — but an exhausted account is
+            # not a property of the candidate. Scoring it 0 once fabricated an
+            # entire round of zero-cost zero-accuracy "results"; fail the run
+            # loudly instead so nothing downstream mistakes billing for data.
+            if _is_billing_failure(failure):
+                raise
             error = f"{type(failure).__name__}: {failure}"
         return {"question": item["question"], "gold": item.get("answer", ""),
                 "answer": answer, "score": score, "cost": meter.cost,
                 "error": error, "calls": meter.records}
+
+
+def _is_billing_failure(failure: Exception) -> bool:
+    """Whether an exception means the ACCOUNT cannot pay, not that the candidate failed.
+
+    OpenRouter answers 402 with "Insufficient credits" when the balance is gone
+    and 401 when the key is dead — every subsequent call fails identically, so
+    the only honest response is to stop the evaluation, not to average zeros.
+
+    Args:
+        failure: The exception a workflow call raised.
+
+    Returns:
+        True for payment/auth exhaustion, False for anything else.
+    """
+    status = getattr(failure, "status_code", None)
+    return status in (401, 402) or "insufficient credits" in str(failure).lower()
 
 
 def _cached_input_frac(records: list[dict]) -> float:

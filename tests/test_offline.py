@@ -866,6 +866,21 @@ def test_the_meter_prefers_openrouters_billed_cost(catalog):
     assert meter.cost == 0.5
 
 
+def test_an_exhausted_account_fails_the_run_instead_of_scoring_zeros(cfg, catalog):
+    # a 402 hits every example identically — averaging them once fabricated a
+    # whole round of 0.000 @ $0.0000 "results"
+    class Broke(FakeClient):
+        def call(self, model, prompt, **kw):
+            error = RuntimeError("Error code: 402 - Insufficient credits. Add more...")
+            error.status_code = 402
+            raise error
+
+    ev = Evaluator(Broke(catalog), Grader(kind="numeric"), cfg.runtime)
+    with pytest.raises(RuntimeError, match="Insufficient credits"):
+        ev.run({"name": "x", "code": "def solve(question, call_model):\n"
+                                     "    return call_model(question)"}, DATA)
+
+
 def test_no_allowlist_means_no_restriction(cfg, catalog):
     from flowopt.runtime import CallMeter
 

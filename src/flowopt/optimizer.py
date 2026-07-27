@@ -210,7 +210,7 @@ def optimize(cfg, benchmark: Benchmark, evaluator: Evaluator = None, log=print,
                                   code=program["code"],
                                   helpers=program.get("helpers", ""))
             log(f"  scoring {candidate.name} on {len(benchmark.dev)} dev examples...")
-            candidate.dev = evaluator.run(candidate.program, benchmark.dev)
+            candidate.dev = evaluator.run(candidate.program, benchmark.dev, log=log)
             scored(candidate, "dev", candidate.dev)
             search.archive.append(candidate)
             log(f"  + {candidate.name:24s} dev acc {candidate.dev.accuracy:.2f}  "
@@ -233,7 +233,7 @@ def optimize(cfg, benchmark: Benchmark, evaluator: Evaluator = None, log=print,
         fresh = candidate.test is None
         if fresh:
             log(f"  scoring {candidate.name} on {len(benchmark.test)} test examples...")
-            candidate.test = evaluator.run(candidate.program, benchmark.test)
+            candidate.test = evaluator.run(candidate.program, benchmark.test, log=log)
             scored(candidate, "test", candidate.test)
         # else: carried from the source run — the same held-out split was
         # already paid for, and re-scoring would only add sampling noise.
