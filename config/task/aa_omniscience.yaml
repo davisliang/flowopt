@@ -2,6 +2,13 @@
 task:
   name: aa_omniscience
   description: >-
-    Answer a short factual question from the AA-Omniscience set. Answers are brief factual statements; an answer is correct if it states the same fact as the reference, in any wording.
-  check_type: llm_judge
+    Answer a short factual question from the AA-Omniscience set. Answers are brief factual statements; an answer is correct only if it states the same fact as the reference (binary equality check).
+  check_type: llm_equality
   dataset: benchmarks/aa_omniscience/data.jsonl
+
+# Match Artificial Analysis's correctness judgment: a binary equality checker on
+# GPT-4o (Aug). Note: our score is percentage correct; AA's headline Omniscience
+# Index also applies negative marking for confident wrong answers, which we do
+# not replicate.
+judge:
+  model: openai/gpt-4o-2024-08-06

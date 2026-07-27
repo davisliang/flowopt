@@ -26,6 +26,27 @@ class JudgeScore(BaseModel):
     score: int
 
 
+class EqualityVerdict(BaseModel):
+    """The equality checker's reply, in the official HLE judge format.
+
+    The field set (and their order, which is the order the model fills them in)
+    comes from the HLE repo's judge — reasoning before the verdict, so the
+    verdict is concluded, not blurted.
+
+    Attributes:
+        extracted_final_answer: The final answer the checker read out of the
+            response, or "None" if it found none.
+        reasoning: Why that answer does or does not match the reference.
+        correct: "yes" or "no".
+        confidence: Confidence score the response itself stated, 100 if none.
+    """
+    model_config = ConfigDict(extra="forbid")
+    extracted_final_answer: str
+    reasoning: str
+    correct: str
+    confidence: int
+
+
 def extract_last_number(text) -> Optional[float]:
     """Pull the last number out of free text.
 
@@ -70,12 +91,17 @@ class Grader:
     """Scores one predicted answer against the gold answer, in [0, 1].
 
     `kind` selects the rule:
-        "numeric"   — the answer must be the same number. 1.0 or 0.0.
-        "exact"     — case-insensitive string match. 1.0 or 0.0.
-        "llm_judge" — a graded quality score from a cheap model against a
-                      task-specific rubric, so "accuracy" means mean quality.
-        "custom"    — an external benchmark's own metric (see `from_grader`),
-                      which sees the whole item, not just the gold string.
+        "numeric"      — the answer must be the same number. 1.0 or 0.0.
+        "exact"        — case-insensitive string match. 1.0 or 0.0.
+        "llm_judge"    — a graded quality score from a cheap model against a
+                         task-specific rubric, so "accuracy" means mean quality.
+        "llm_equality" — binary: a model judges whether the answer matches the
+                         reference, using the official HLE equality-checker
+                         prompt (small tolerance on numbers). 1.0 or 0.0, so
+                         "accuracy" means percentage correct — the same
+                         protocol Artificial Analysis reports HLE with.
+        "custom"       — an external benchmark's own metric (see `from_grader`),
+                         which sees the whole item, not just the gold string.
 
     The judge's own API calls are the evaluator's cost, deliberately NOT counted
     as workflow cost.
@@ -136,7 +162,33 @@ class Grader:
                            and abs(predicted - expected) < 1e-6) else 0.0
         if self.kind == "exact":
             return 1.0 if str(prediction).strip().casefold() == str(gold).strip().casefold() else 0.0
+        if self.kind == "llm_equality":
+            return self.equality(prediction, gold, item.get("question", ""))
         return self.judge(prediction, gold, item.get("question", ""))
+
+    def equality(self, prediction, gold, question="") -> float:
+        """Binary equality check with the official HLE judge prompt.
+
+        No rubric and no partial credit: the checker extracts the final answer
+        from the response and says whether it matches the reference (with a
+        small margin on numerical answers). Matches how Artificial Analysis and
+        the HLE paper score, so accuracy reads as percentage correct.
+
+        Args:
+            prediction: The candidate answer.
+            gold: The reference answer.
+            question: The question, shown to the checker as the prompt requires.
+
+        Returns:
+            1.0 or 0.0. A refusal or unparseable reply scores 0.0.
+        """
+        prompt = prompts.render("judge_equality", question=question,
+                                response=str(prediction), correct_answer=str(gold))
+        try:
+            verdict = self.client.parse(self.judge_model, prompt, EqualityVerdict)
+        except ValueError:                          # refusal, or a reply past the ceiling
+            return 0.0
+        return 1.0 if verdict.correct.strip().lower() == "yes" else 0.0
 
     def judge(self, prediction, gold, question="") -> float:
         """Score a free-form answer against the rubric, using a model.

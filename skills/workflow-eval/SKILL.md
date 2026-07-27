@@ -28,7 +28,7 @@ will mean in the final ranking.
 
 A single JSON line:
 
-- Success: `{"ok": true, "accuracy": <0..1>, "cost_per_query": <usd>, "n": <count>, "cached_input_frac": <0..1>, "errors": [...]}`
+- Success: `{"ok": true, "accuracy": <0..1>, "cost_per_query": <usd>, "n": <count>, "cached_input_frac": <0..1>, "errors": [...], "failures": [...]}`
 - Failure: `{"ok": false, "error": "<message>"}`
 
 Read it as: `accuracy` is the mean score on the train set, `cost_per_query` is the
@@ -38,3 +38,10 @@ prompts are below the cache floor and the reuse isn't happening. `ok: false`
 means the program didn't compile or didn't define `solve`. A non-empty `errors`
 array with `ok: true` means some examples raised — investigate and fix the
 candidate. Keep candidates that run cleanly; fix or drop the rest.
+
+`failures` is the diagnosis channel: the train examples the candidate lost points
+on, worst first (up to 25), each with the question, the gold answer, what the
+candidate answered, its score, and the error if it raised instead. The search's
+dev results come back to you as aggregates only, so THIS is where you learn
+whether a design fails on formatting, on a difficulty band, on a topic, or on
+its own routing — read it before designing the fix, not after.

@@ -1,0 +1,8 @@
+# terminalbench_hard — placeholder documenting an Artificial Analysis benchmark
+# we cannot run: it requires a live terminal/container environment the agent
+# operates in, not a question->answer dataset.
+name: terminalbench_hard
+description: >-
+  Complete a Terminal-Bench Hard task by operating a real shell environment.
+grading_supported: false
+grading_note: needs a live terminal environment, not question->answer

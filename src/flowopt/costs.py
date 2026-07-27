@@ -200,13 +200,14 @@ def estimate(cfg, history: dict = None, generates_data: bool = None,
         n_examples = n_train + dev + test
         notes.append(f"explicit split sizes: {n_train} train / {dev} dev / {test} test")
     elif alloc_val and alloc_test:
-        # The run will draw dev/test from routerllm's allocated partitions, and
-        # blank inputs take a partition WHOLE — bbeh's 417-example holdout would
-        # otherwise cost ~5x an estimate that assumed the fraction split.
+        # The run will draw dev/test from the dataset's fixed partitions, and
+        # blank inputs take a partition WHOLE — bbeh's 1,508-example test
+        # partition would otherwise cost ~5x an estimate that assumed the
+        # fraction split.
         dev = min(int(cfg.data.n_dev), alloc_val) if int(cfg.data.n_dev) > 0 else alloc_val
         test = min(int(cfg.data.n_test), alloc_test) if int(cfg.data.n_test) > 0 else alloc_test
         n_examples = n_train + dev + test
-        notes.append(f"sizes from routerllm's allocation: {dev} dev (its val partition), "
+        notes.append(f"sizes from the dataset's allocation: {dev} dev (its val partition), "
                      f"{test} test (its holdout) — blank inputs take each partition whole")
     else:
         # What will actually be scored, which is not always what was asked for:
@@ -225,7 +226,7 @@ def estimate(cfg, history: dict = None, generates_data: bool = None,
     if generates_data is None:
         generates_data = not cfg.task.dataset
     if judged is None:
-        judged = (cfg.task.check_type or "") == "llm_judge"
+        judged = (cfg.task.check_type or "") in ("llm_judge", "llm_equality")
 
     # 1. analysis, and generating examples when the task brings none
     breakdown["analysis"] = DEFAULT_ANALYSIS_COST
@@ -361,7 +362,7 @@ class Probe:
     model: str = ""
 
 
-def run_probe(cfg, client, grader, examples: list, n: int = 5) -> Probe:
+def run_probe(client, grader, examples: list, n: int = 5) -> Probe:
     """Measure one direct call on this task, to anchor an estimate in fact.
 
     Costs a few cents and takes seconds. Nothing about the task is assumed: the
@@ -369,7 +370,6 @@ def run_probe(cfg, client, grader, examples: list, n: int = 5) -> Probe:
     graded, so the accuracy says whether the cheap tier can do the work.
 
     Args:
-        cfg: The run config.
         client: A ModelClient.
         grader: The task's grader, used to score the probe's answers.
         examples: Real examples to probe with.

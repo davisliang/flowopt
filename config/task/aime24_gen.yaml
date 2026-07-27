@@ -3,5 +3,11 @@ task:
   name: aime24_gen
   description: >-
     Solve an AIME 2024 competition maths problem. The answer is a single integer.
-  check_type: exact
+  check_type: llm_equality
   dataset: benchmarks/aime24_gen/data.jsonl
+
+# Match Artificial Analysis's grading: a binary equality checker on GPT-4o (Aug)
+# extracts the final answer and compares — "012" and "12" both pass, unlike the
+# old exact string match.
+judge:
+  model: openai/gpt-4o-2024-08-06

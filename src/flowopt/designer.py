@@ -383,6 +383,10 @@ def _round_prompt(cfg, benchmark, round_num: int, context: str,
         facts += " A numeric answer must BE the number, with no words or units around it."
     elif benchmark.grader.kind == "exact":
         facts += " It is compared against the gold answer exactly, ignoring case."
+    elif benchmark.grader.kind == "llm_equality":
+        facts += (" It is scored by a binary equality checker: 1 only if the final "
+                  "answer matches the reference (small tolerance on numbers), 0 "
+                  "otherwise — no partial credit, so return the exact answer alone.")
     if analysis.answer_examples:
         facts += ("\nCorrectly formatted answers for this task look exactly like:\n- "
                   + "\n- ".join(str(e) for e in analysis.answer_examples[:4]))

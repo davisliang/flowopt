@@ -1,30 +1,16 @@
-# aa_omniscience — imported from routerllm by scripts/import_routerllm_benchmarks.py
+# aa_omniscience — full set, imported by scripts/pull_full_benchmarks.py.
+# Replaces the routerllm sample; routerllm's partition and baselines are gone
+# (they were measured on that sample and don't transfer to these splits).
 name: aa_omniscience
 description: >-
   Answer a short factual question from the AA-Omniscience set. Answers are brief factual statements; an answer is correct if it states the same fact as the reference, in any wording.
 source_dataset: ArtificialAnalysis/AA-Omniscience-Public
 num_fewshot: 0
-examples: 200
-sampled_from: 200
-routerllm_grader: judge
+examples: 600
+sampled_from: 600
+grader_label: judge
 grading_supported: true
-# routerllm allocated a holdout for this task; the rows below labeled
-# "split": "test" are the holdout examples present in the export, and the
-# optimizer uses exactly those as its test split — the same examples the
-# baselines were measured on. Partial coverage means the export was itself
-# a sample; zero means the export's doc_ids could not be matched.
-holdout_in_data: 21 of 61
-# Rows labeled train/val carry routerllm's own 80/10/10 partition (via
-# split.json): the optimizer draws its train split from train-labeled rows
-# and its dev split from val-labeled rows, so no example crosses a
-# partition boundary.
-split_labeled: 155 train / 24 val / 21 test
-check_type: llm_judge
-# routerllm's holdout numbers, recomputed from joined_14.jsonl.
-# Comparable only if graded the same way — see grading_note.
-baselines:
-  n: 61
-  haiku: 0.2951
-  opus: 0.5574
-  router: 0.5082
-  oracle: 0.5738
+# Split into equal thirds with a seeded shuffle (seed 0); size the run's
+# train/dev/test draws from these partitions when starting a search.
+split_labeled: 200 train / 200 val / 200 test
+check_type: llm_equality

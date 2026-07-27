@@ -266,15 +266,19 @@ function newRunForm() {
     <form class="newrun" onsubmit="return startRun(event)" oninput="scheduleEstimate()">
       <div class="full" id="f-source"></div>
       <div><label>design rounds</label><input id="f-rounds" type="number" min="1" max="10" value="2"></div>
-      <div><label title="Examples the design agent may see and self-test on — disjoint from dev and test. Benchmarks with a routerllm allocation draw these from its train partition">train examples ⓘ</label>
-        <input id="f-train" type="number" min="0" max="50" placeholder="5"></div>
-      <div><label title="Scored during the search; guides candidate selection. Benchmarks with a routerllm allocation draw these from its val partition; blank takes the whole partition (or splits the pool by fraction)">dev examples ⓘ</label>
-        <input id="f-dev" type="number" min="1" max="500" placeholder="auto"></div>
-      <div><label title="Held out for the final ranking only. Benchmarks with a routerllm allocation draw these from its test partition — the holdout the baselines were measured on">test examples ⓘ</label>
-        <input id="f-test" type="number" min="1" max="500" placeholder="auto"></div>
-      <div><label>concurrency</label><input id="f-concurrency" type="number" min="1" max="32" value="8"></div>
+      <div><label title="Examples the design agent may see and self-test on — disjoint from dev and test. Partitioned benchmarks draw these from their train partition">train examples ⓘ</label>
+        <input id="f-train" type="number" min="0" max="5000" placeholder="5"></div>
+      <div><label title="Scored during the search; guides candidate selection. Partitioned benchmarks draw these from their val partition; blank takes the whole partition (or splits the pool by fraction)">dev examples ⓘ</label>
+        <input id="f-dev" type="number" min="1" max="5000" placeholder="auto"></div>
+      <div><label title="Held out for the final ranking only. Partitioned benchmarks draw these from their test partition; blank takes it whole">test examples ⓘ</label>
+        <input id="f-test" type="number" min="1" max="5000" placeholder="auto"></div>
+      <div><label>concurrency</label><input id="f-concurrency" type="number" min="1" max="64" value="8"></div>
       <div><label title="Which workflow gets recommended, and the target the designer aims at. It does not cap what the search spends.">budget $/query <span style="color:#5b667a">ⓘ</span></label>
         <input id="f-budget" type="number" step="0.0001" value="0.002"></div>
+      <div><label title="Model calls one query may make before the workflow is stopped and that example scores 0 — the runaway guard, not a quality knob">max calls/query ⓘ</label>
+        <input id="f-maxcalls" type="number" min="1" max="200" placeholder="24"></div>
+      <div><label title="Tokens one query may spend before the workflow is stopped and that example scores 0. Heavy-reasoning models eat this fast">max tokens/query ⓘ</label>
+        <input id="f-maxtokens" type="number" min="1000" max="2000000" placeholder="120000"></div>
       <div class="full" id="f-models"></div>
       <div class="full" id="f-tools"></div>
       <div class="full" id="f-plugins"></div>
@@ -350,9 +354,40 @@ function renderModels() {
   if (!box) return;
   const dir = window._modelDir;
   if (!dir) { box.innerHTML = `<label>models</label><div class="desc">loading the OpenRouter catalog…</div>`; return; }
+  // The skeleton — including the search input — is built ONCE per form render;
+  // keystrokes only refresh the list below it, so the input never loses focus.
+  if (!document.getElementById("f-model-search")) {
+    const designer = designerChoice || dir.default_designer;
+    box.innerHTML = `<label>models the workflows may route over
+        <span style="color:#5b667a">— ${dir.models.length} on OpenRouter${
+        dir.aa_available ? ", capabilities via Artificial Analysis" : ""}</span></label>
+      <input type="text" id="f-model-search"
+        placeholder="search OpenRouter models — empty shows the picked pool"
+        value="${esc(modelFilter)}" oninput="modelFilter=this.value;renderModelList()"
+        style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
+               border-radius:4px;padding:5px 6px;font:inherit;font-size:12px;margin-bottom:5px">
+      <div id="f-model-list" style="display:flex;flex-direction:column;gap:4px"></div>
+      <div class="desc" id="f-model-note" style="margin-top:4px"></div>
+      <label style="margin-top:8px">design agent model</label>
+      <input list="model-ids" id="f-designer" value="${esc(designer)}"
+        onfocus="this.select()" onchange="designerChoice=this.value.trim()||null"
+        style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
+               border-radius:4px;padding:5px 6px;font:inherit;font-size:12px">
+      <datalist id="model-ids">` +
+      dir.models.map(m => `<option value="${esc(m.id)}">`).join("") + `</datalist>
+      <div class="desc">writes the workflows — type to search any OpenRouter model (its agent
+        session runs on the Claude Code harness via OpenRouter, so Claude models are the
+        best-tested choice; billed through OpenRouter either way)</div>`;
+  }
+  renderModelList();
+}
+
+function renderModelList() {
+  const dir = window._modelDir;
+  const list = document.getElementById("f-model-list");
+  if (!dir || !list) return;
   const byId = Object.fromEntries(dir.models.map(m => [m.id, m]));
   const pool = currentPool();
-  const designer = designerChoice || dir.default_designer;
   const q = modelFilter.trim().toLowerCase();
   // No search text: show the picked pool. With text: the matches (capped), so
   // 300+ models stay browsable. A picked model stays picked while hidden.
@@ -360,34 +395,19 @@ function renderModels() {
     ? pool.map(id => byId[id]).filter(Boolean)
     : dir.models.filter(m => m.id.toLowerCase().includes(q)
                           || (m.name || "").toLowerCase().includes(q)).slice(0, 25);
-  box.innerHTML = `<label>models the workflows may route over
-      <span style="color:#5b667a">— ${dir.models.length} on OpenRouter${
-      dir.aa_available ? ", capabilities via Artificial Analysis" : ""}</span></label>
-    <input type="text" placeholder="search OpenRouter models — empty shows the picked pool"
-      value="${esc(modelFilter)}" oninput="modelFilter=this.value;renderModels()"
-      style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
-             border-radius:4px;padding:5px 6px;font:inherit;font-size:12px;margin-bottom:5px">
-    <div style="display:flex;flex-direction:column;gap:4px">` +
-    (shown.length ? shown.map(m => modelRow(m, pool.includes(m.id))).join("")
-                  : `<div class="desc">no matches</div>`) +
-    `</div>
-    <div class="desc" style="margin-top:4px">${pool.length} picked${q ? "" : " (the pool)"} —
-      prices from OpenRouter, indices from Artificial Analysis. The design agent is told
-      each one's measurements and researches how they compare for the task.</div>
-    <label style="margin-top:8px">design agent model</label>
-    <input list="model-ids" id="f-designer" value="${esc(designer)}"
-      onchange="designerChoice=this.value.trim()||null"
-      style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
-             border-radius:4px;padding:5px 6px;font:inherit;font-size:12px">
-    <datalist id="model-ids">` +
-    dir.models.map(m => `<option value="${esc(m.id)}">`).join("") + `</datalist>
-    <div class="desc">writes the workflows — its own session is billed through OpenRouter too</div>`;
+  list.innerHTML = shown.length
+    ? shown.map(m => modelRow(m, pool.includes(m.id))).join("")
+    : `<div class="desc">no matches</div>`;
+  document.getElementById("f-model-note").innerHTML =
+    `${pool.length} picked${q ? "" : " (the pool)"} — prices from OpenRouter, indices
+     from Artificial Analysis. The design agent is told each one's measurements and
+     researches how they compare for the task.`;
 }
 
 function toggleModel(id, on) {
   const base = currentPool().slice();
   modelChoice = on ? [...new Set([...base, id])] : base.filter(m => m !== id);
-  renderModels();          // the picked count and checkboxes track the choice
+  renderModelList();       // the picked count and checkboxes track the choice
   scheduleEstimate();
 }
 
@@ -515,10 +535,11 @@ function benchmarkPicker() {
   const options = (window._tasks || []).map(name => {
     const b = benchmarks.find(x => x.name === name);
     const s = b && b.splits;
+    const aa = b && b.aa_validated ? " (AA validated)" : "";
     const label = !b ? name
       : s && (s.train || s.val || s.test)
-        ? `${name} — ${s.train} train / ${s.val} val / ${s.test} test, ${b.grader}`
-        : `${name} — ${b.examples} ex, ${b.grader}`;
+        ? `${name}${aa} — ${s.train} train / ${s.val} val / ${s.test} test, ${b.grader}`
+        : `${name}${aa} — ${b.examples} ex, ${b.grader}`;
     return `<option value="${esc(name)}">${esc(label)}</option>`;
   }).join("");
   const unsupported = benchmarks.filter(b => !b.supported);
@@ -540,13 +561,16 @@ function describeTask() {
     : "";
   const s = b.splits || {};
   const splitLine = (s.train || s.val || s.test)
-    ? `<div style="margin-top:3px;color:#7c8699">routerllm split in the data:
+    ? `<div style="margin-top:3px;color:#7c8699">fixed split in the data:
         <b style="color:#bdc4d3">${s.train} train / ${s.val} val / ${s.test} test</b>
-        — our splits draw only from their partition; blank dev/test run the whole
-        val / test partition</div>`
-    : `<div style="margin-top:3px;color:#7c8699">no external allocation — random
+        — the run's splits draw only from these partitions; blank dev/test run the
+        whole val / test partition</div>`
+    : `<div style="margin-top:3px;color:#7c8699">no fixed partition — random
         seeded train/dev/test split</div>`;
   out.innerHTML = esc(b.description) +
+    (b.aa_validated ? `<div style="margin-top:4px;color:#86efac">AA validated — the full
+        Artificial Analysis question set, graded with AA's own protocol, so scores are
+        comparable to their published numbers</div>` : "") +
     `<div style="margin-top:4px;color:#7c8699">${b.examples} examples` +
     (b.sampled_from && b.sampled_from !== b.examples ? ` (sampled from ${b.sampled_from})` : "") +
     esc(refs) + `</div>` + splitLine;
@@ -590,6 +614,8 @@ async function loadEstimate() {
   for (const [id, key] of [["f-rounds", "designer.rounds"], ["f-train", "data.n_train"],
                            ["f-dev", "data.n_dev"], ["f-test", "data.n_test"],
                            ["f-concurrency", "runtime.concurrency"],
+                           ["f-maxcalls", "runtime.max_model_calls"],
+                           ["f-maxtokens", "runtime.max_tokens"],
                            ["f-budget", "report.max_cost_per_query"]]) {
     const el = document.getElementById(id);
     if (el && el.value !== "") params.set(key, el.value);
@@ -643,6 +669,8 @@ async function runProbe() {
   for (const [id, key] of [["f-rounds", "designer.rounds"], ["f-train", "data.n_train"],
                            ["f-dev", "data.n_dev"], ["f-test", "data.n_test"],
                            ["f-concurrency", "runtime.concurrency"],
+                           ["f-maxcalls", "runtime.max_model_calls"],
+                           ["f-maxtokens", "runtime.max_tokens"],
                            ["f-budget", "report.max_cost_per_query"]]) {
     const el = document.getElementById(id);
     if (el && el.value !== "") overrides[key] = el.value;
@@ -699,6 +727,8 @@ async function startRun(ev) {
       "data.n_dev": document.getElementById("f-dev").value,
       "data.n_test": document.getElementById("f-test").value,
       "runtime.concurrency": document.getElementById("f-concurrency").value,
+      "runtime.max_model_calls": document.getElementById("f-maxcalls").value,
+      "runtime.max_tokens": document.getElementById("f-maxtokens").value,
       "report.max_cost_per_query": document.getElementById("f-budget").value,
     },
   };

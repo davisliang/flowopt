@@ -199,6 +199,13 @@ class ModelCatalog:
         """
         spec = self.spec(model_id)
         line = f"{spec.id}: ${spec.price_in:g}/M in, ${spec.price_out:g}/M out"
+        if spec.aa is None and spec.id.endswith("-pro"):
+            # OpenRouter's pro serving aliases: same weights and per-token price
+            # as the base model, but reasoning always on and much heavier — so a
+            # call costs several times more in practice. AA doesn't measure the
+            # alias, and borrowing the base numbers would misstate it.
+            line += (" — pro serving mode of the base model: same rates, mandatory "
+                     "heavy reasoning, so far higher effective cost per call")
         if spec.aa:
             parts = [f"{key} {round(value)}" for key, value in
                      (("intelligence", spec.aa.get("intelligence")),

@@ -1,0 +1,9 @@
+# tau2_bench — placeholder documenting an Artificial Analysis benchmark we
+# cannot run: it simulates multi-turn tool-using customer-service dialogues
+# with a user simulator, not a question->answer dataset.
+name: tau2_bench
+description: >-
+  Resolve a tau2-bench customer-service scenario via multi-turn tool use
+  against a simulated user.
+grading_supported: false
+grading_note: needs the tau2 dialogue/tool simulator, not question->answer

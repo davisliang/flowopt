@@ -589,7 +589,10 @@ def list_benchmarks() -> list[dict]:
             "description": meta.get("description", ""),
             "examples": meta.get("examples"),
             "sampled_from": meta.get("sampled_from"),
-            "grader": meta.get("routerllm_grader", ""),
+            # newer imports write grader_label; routerllm-era files the old name
+            "grader": meta.get("grader_label", meta.get("routerllm_grader", "")),
+            # full AA question set + AA's grading protocol — scores comparable
+            "aa_validated": bool(meta.get("aa_validated")),
             "supported": bool(meta.get("grading_supported", True)),
             "note": meta.get("grading_note", ""),
             "baselines": meta.get("baselines") or {},
@@ -599,7 +602,7 @@ def list_benchmarks() -> list[dict]:
 
 
 def _split_counts(path: Path) -> dict:
-    """Count a benchmark's rows and routerllm partition labels, for the picker.
+    """Count a benchmark's rows and its fixed partition labels, for the picker.
 
     Args:
         path: The benchmark's `data.jsonl`.

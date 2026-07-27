@@ -1,0 +1,9 @@
+# scicode — placeholder documenting an Artificial Analysis benchmark we cannot
+# run: grading executes generated scientific code against reference tests, and
+# this repo has no sandboxed execution harness.
+name: scicode
+description: >-
+  Implement a scientific-computing subproblem from SciCode; graded by executing
+  the code against reference tests.
+grading_supported: false
+grading_note: graded by executing code — no sandboxed harness here

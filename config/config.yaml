@@ -9,12 +9,23 @@
 # ARTIFICIAL_ANALYSIS_API_KEY to enable), so this list is only WHICH models —
 # nothing here to drift out of sync. The catalog sorts them cheapest first.
 models:
-  - anthropic/claude-haiku-4.5
+  - deepseek/deepseek-v4-flash
+  - deepseek/deepseek-v4-pro
+  - moonshotai/kimi-k3
+  - z-ai/glm-5.2
+  - meta/muse-spark-1.1
   - openai/gpt-5.6-luna
+  - openai/gpt-5.6-luna-pro
   - openai/gpt-5.6-terra
-  - anthropic/claude-sonnet-5
-  - anthropic/claude-opus-4.8
+  - openai/gpt-5.6-terra-pro
   - openai/gpt-5.6-sol
+  - openai/gpt-5.6-sol-pro
+  - anthropic/claude-opus-5
+  - anthropic/claude-sonnet-5
+  - google/gemini-3.1-pro-preview
+  - google/gemini-3.5-flash
+  - google/gemini-3.6-flash
+  - google/gemini-3.5-flash-lite
 
 # The model that analyzes the task and generates the dataset.
 analysis_model: anthropic/claude-opus-4.8
@@ -79,7 +90,11 @@ designer:
   research: true           # web-research phase before designing, writing research_notes.md
   working_skills: false    # give the agent a working_skills/ dir it reads+writes across a run's rounds
   dev_sample_size: 5       # dev examples the agent may self-test against
-  failures_shown: 4        # worst dev examples surfaced per candidate to the next round
+  # Worst dev examples surfaced per candidate to the next round. 0 keeps dev
+  # aggregate-only (the agent sees % correct and cost, never dev questions or
+  # golds — it diagnoses on the train split via the eval skill); raise it to
+  # trade a dev leak for direct failure signal.
+  failures_shown: 0
   dominated_shown: 10      # off-frontier candidates shown besides the full frontier (most recent kept)
   skills: [workflow-design, workflow-eval, workflow-naming]
   allowed_tools: [WebSearch, WebFetch, Bash, Read, Write, Skill]

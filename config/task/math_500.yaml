@@ -1,0 +1,15 @@
+# MATH-500, imported by scripts/import_math500.py from HuggingFaceH4/MATH-500 —
+# split into equal thirds (166 train / 166 val / 168 test, seeded).
+task:
+  name: math_500
+  description: >-
+    Solve a MATH-500 competition mathematics problem. The answer is an exact
+    value — an integer, fraction, or expression, often in LaTeX; an answer is
+    correct only if it is mathematically equal to the reference (binary
+    equality check, no partial credit).
+  check_type: llm_equality
+  dataset: benchmarks/math_500/data.jsonl
+
+# Match Artificial Analysis's grading: a binary equality checker on GPT-4o (Aug).
+judge:
+  model: openai/gpt-4o-2024-08-06

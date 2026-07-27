@@ -88,11 +88,11 @@ def test_calls_go_through_openrouter_with_cached_tokens_carved_out(cfg, catalog)
     # the cache-read price applies to exactly them
     sdk = FakeOpenRouter(_or_response(text="42", cached=30, cost=0.00123))
     response = ModelClient(catalog, cfg.call, client=sdk).call(
-        "anthropic/claude-haiku-4.5", "q", tools=["web_search", "web_fetch"])
+        "anthropic/claude-sonnet-5", "q", tools=["web_search", "web_fetch"])
     assert response.text == "42"
     assert response.usage == {"input": 70, "output": 10, "cache_write": 0, "cache_read": 30}
     assert response.cost == 0.00123                       # what OpenRouter billed
-    assert sdk.request["model"] == "anthropic/claude-haiku-4.5"
+    assert sdk.request["model"] == "anthropic/claude-sonnet-5"
     # OpenRouter server tools, in the tools array
     assert sdk.request["tools"] == [{"type": "openrouter:web_search"},
                                     {"type": "openrouter:web_fetch"}]
@@ -106,7 +106,7 @@ def test_the_legacy_web_name_and_request_plugins(cfg, catalog):
     cfg.call.plugins = ["response-healing"]
     sdk = FakeOpenRouter(_or_response())
     ModelClient(catalog, cfg.call, client=sdk).call(
-        "anthropic/claude-haiku-4.5", "q", tools=["web", "web_search"])
+        "anthropic/claude-sonnet-5", "q", tools=["web", "web_search"])
     assert sdk.request["tools"] == [{"type": "openrouter:web_search"}]   # deduped
     assert sdk.request["extra_body"]["plugins"] == [{"id": "response-healing"}]
 
@@ -134,17 +134,26 @@ def usage(**kw):
 
 def test_catalog_is_ordered_cheapest_first(catalog):
     # sorted by fetched OpenRouter prices, not by config order
-    assert catalog.ids == ["anthropic/claude-haiku-4.5", "openai/gpt-5.6-luna",
-                           "anthropic/claude-sonnet-5", "openai/gpt-5.6-terra",
-                           "anthropic/claude-opus-4.8", "openai/gpt-5.6-sol"]
-    assert catalog.default == "anthropic/claude-haiku-4.5"
+    assert len(catalog.ids) == 17
+    assert catalog.ids[:4] == ["deepseek/deepseek-v4-flash", "google/gemini-3.5-flash-lite",
+                               "deepseek/deepseek-v4-pro", "z-ai/glm-5.2"]
+    # sol and sol-pro share a price; the stable sort keeps config order
+    assert catalog.ids[-3:] == ["anthropic/claude-opus-5", "openai/gpt-5.6-sol",
+                                "openai/gpt-5.6-sol-pro"]
+    assert catalog.default == "deepseek/deepseek-v4-flash"
+    # same price_in ties break on price_out: 3.6-flash ($7.50/M out) undercuts 3.5-flash
+    assert catalog.ids.index("google/gemini-3.6-flash") < catalog.ids.index("google/gemini-3.5-flash")
 
 
 def test_catalog_carries_artificial_analysis_measurements(catalog):
-    # AA orders haiku's slug differently ("claude-4-5-haiku") — the token-set
-    # fallback still finds it, so every default-pool model is annotated
+    # every base model is annotated; the -pro serving aliases are NOT — AA
+    # measures effort ladders, not OpenRouter's pro mode, and borrowing the base
+    # model's numbers would misstate what pro serving delivers
     for spec in catalog.specs:
-        assert spec.aa is not None, spec.id
+        if spec.id.endswith("-pro") and "gpt-5.6" in spec.id:
+            assert spec.aa is None, spec.id
+        else:
+            assert spec.aa is not None, spec.id
     described = catalog.describe("openai/gpt-5.6-luna")
     assert "intelligence" in described and "tok/s" in described
 
@@ -155,12 +164,12 @@ def test_unknown_model_falls_back_to_default(catalog):
 
 
 def test_cache_changes_the_price(catalog):
-    # the same 2,000 haiku input tokens, three ways: fresh, first send, resent —
-    # cache prices come per-model from OpenRouter ($1.25/M write, $0.10/M read)
-    haiku = "anthropic/claude-haiku-4.5"
-    assert catalog.cost_usd(haiku, usage(input=2000)) == pytest.approx(0.0020)
-    assert catalog.cost_usd(haiku, usage(cache_write=2000)) == pytest.approx(0.0025)
-    assert catalog.cost_usd(haiku, usage(cache_read=2000)) == pytest.approx(0.0002)
+    # the same 2,000 sonnet input tokens, three ways: fresh, first send, resent —
+    # cache prices come per-model from OpenRouter ($2.50/M write, $0.20/M read)
+    sonnet = "anthropic/claude-sonnet-5"
+    assert catalog.cost_usd(sonnet, usage(input=2000)) == pytest.approx(0.0040)
+    assert catalog.cost_usd(sonnet, usage(cache_write=2000)) == pytest.approx(0.0050)
+    assert catalog.cost_usd(sonnet, usage(cache_read=2000)) == pytest.approx(0.0004)
 
 
 # ---- grading ----------------------------------------------------------------
@@ -171,6 +180,25 @@ def test_a_numeric_answer_must_be_the_number():
     check = Grader(kind="numeric")
     assert check.score("42", {"answer": 42}) == 1.0
     assert check.score("42 apples", {"answer": "42"}) == 0.0
+
+
+def test_equality_check_is_binary_and_uses_the_official_prompt():
+    from flowopt.grading import EqualityVerdict
+
+    class StubJudge:
+        def __init__(self, correct):
+            self.correct = correct
+
+        def parse(self, model, prompt, schema_model):
+            assert "[correct_answer]" in prompt        # the official HLE judge shape
+            assert schema_model is EqualityVerdict
+            return EqualityVerdict(extracted_final_answer="18", reasoning="r",
+                                   correct=self.correct, confidence=100)
+
+    yes = Grader(kind="llm_equality", client=StubJudge("yes"), judge_model="j")
+    assert yes.score("The answer is 18", {"question": "q", "answer": "18"}) == 1.0
+    no = Grader(kind="llm_equality", client=StubJudge("no"), judge_model="j")
+    assert no.score("17", {"question": "q", "answer": "18"}) == 0.0
 
 
 def test_exact_check_ignores_case():
@@ -373,7 +401,7 @@ def test_a_session_wires_config_catalog_and_client_together(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key-not-used")
     session = Session.load("gsm8k", ["designer.rounds=1"])
     assert session.cfg.designer.rounds == 1
-    assert session.catalog.ids[0] == "anthropic/claude-haiku-4.5"
+    assert session.catalog.ids[0] == "deepseek/deepseek-v4-flash"
     assert session.client.catalog is session.catalog          # one catalog, not two
     assert session.evaluator(Grader(kind="numeric")).default_model == session.catalog.default
 
@@ -528,7 +556,7 @@ def test_the_meta_skill_in_the_skill_list_is_not_staged_twice(tmp_path):
 def test_round_one_asks_for_diversity_and_later_rounds_extend_the_frontier(cfg):
     benchmark = benchmark_fixture()
     first = _round_prompt(cfg, benchmark, 1, "")
-    assert "DIVERSE" in first and "anthropic/claude-haiku-4.5" in first
+    assert "DIVERSE" in first and "deepseek/deepseek-v4-flash" in first
     assert "Artificial Analysis" in first          # the menu carries measurements
     assert "must BE the number" in first          # the strict checker is spelled out
 

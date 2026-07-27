@@ -85,6 +85,7 @@ FORM_FIELDS = {
     "data.n_test": int,
     "runtime.concurrency": int,
     "runtime.max_model_calls": int,
+    "runtime.max_tokens": int,
     "report.max_cost_per_query": float,
     "report.min_accuracy": float,
 }
@@ -461,7 +462,7 @@ def probe_and_estimate(task: str, overrides: dict) -> dict:
     except Exception as error:
         return {"error": f"could not load the task: {error}"}
 
-    measured = costs.run_probe(cfg, session.client, benchmark.grader, benchmark.dev, n=3)
+    measured = costs.run_probe(session.client, benchmark.grader, benchmark.dev, n=3)
     if not measured.n:
         return {**base, "probe": {"skipped": "every probe call failed — the API may be "
                                   "busy; the estimate below is from defaults"}}
@@ -641,7 +642,7 @@ def model_directory(refresh: bool = False) -> dict:
 
 
 def _dataset_shape(cfg) -> Optional[dict]:
-    """Count a task's dataset rows and any routerllm partition labels.
+    """Count a task's dataset rows and any fixed partition labels.
 
     The run scores what the data allows, not what was asked: `n_examples` caps
     a loaded pool, and an allocated benchmark's blank dev/test take a labeled

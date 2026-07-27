@@ -1,30 +1,16 @@
-# minerva_math — imported from routerllm by scripts/import_routerllm_benchmarks.py
+# minerva_math — full set, imported by scripts/pull_full_benchmarks.py.
+# Replaces the routerllm sample; routerllm's partition and baselines are gone
+# (they were measured on that sample and don't transfer to these splits).
 name: minerva_math
 description: >-
   Solve a MATH competition problem. The answer is a mathematical expression or number, compared for mathematical equivalence.
 source_dataset: EleutherAI/hendrycks_math
-num_fewshot: 4
-examples: 338
-sampled_from: 1400   # random.Random(0).sample
-routerllm_grader: exact
+num_fewshot: 0
+examples: 5000
+sampled_from: 5000
+grader_label: exact
 grading_supported: true
-# routerllm allocated a holdout for this task; the rows below labeled
-# "split": "test" are the holdout examples present in the export, and the
-# optimizer uses exactly those as its test split — the same examples the
-# baselines were measured on. Partial coverage means the export was itself
-# a sample; zero means the export's doc_ids could not be matched.
-holdout_in_data: 138 of 516
-# Rows labeled train/val carry routerllm's own 80/10/10 partition (via
-# split.json): the optimizer draws its train split from train-labeled rows
-# and its dev split from val-labeled rows, so no example crosses a
-# partition boundary.
-split_labeled: 171 train / 29 val / 138 test
+# Split into equal thirds with a seeded shuffle (seed 0); size the run's
+# train/dev/test draws from these partitions when starting a search.
+split_labeled: 1666 train / 1666 val / 1668 test
 check_type: exact
-# routerllm's holdout numbers, recomputed from joined_14.jsonl.
-# Comparable only if graded the same way — see grading_note.
-baselines:
-  n: 516
-  haiku: 0.4341
-  opus: 0.6047
-  router: 0.6066
-  oracle: 0.6163

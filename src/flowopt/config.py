@@ -140,9 +140,11 @@ class DesignerConfig:
             discarded when the run ends — a within-run, self-built skill memory.
             Off keeps the fixed skill set.
         failures_shown: How many of each candidate's worst dev examples to hand
-            the next round, so it can see WHERE existing designs break — the
-            signal a scalar accuracy hides — not just that they scored what they
-            scored.
+            the next round. 0 — the default — keeps dev aggregate-only: the
+            agent sees each candidate's dev accuracy and cost but never a dev
+            question or gold answer, and diagnoses failures by self-testing on
+            the train split instead (the eval skill reports per-example
+            failures there). Raising it trades a dev leak for direct signal.
         dominated_shown: How many off-frontier (dominated) candidates to include
             alongside the archive handed to the next round. Every frontier
             candidate is always shown — those are the points a new design must
@@ -158,7 +160,7 @@ class DesignerConfig:
     research: bool = True
     working_skills: bool = False
     dev_sample_size: int = 5
-    failures_shown: int = 4
+    failures_shown: int = 0
     dominated_shown: int = 10
     skills: list[str] = field(
         default_factory=lambda: ["workflow-design", "workflow-eval", "workflow-naming"])

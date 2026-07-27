@@ -8,6 +8,9 @@ examples: 30
 sampled_from: 30
 routerllm_grader: exact
 grading_supported: true
+# Full AA question set graded with AA's own protocol (equality checker on
+# GPT-4o Aug) — scores are comparable to Artificial Analysis's numbers.
+aa_validated: true
 # routerllm allocated a holdout for this task; the rows below labeled
 # "split": "test" are the holdout examples present in the export, and the
 # optimizer uses exactly those as its test split — the same examples the
@@ -19,7 +22,7 @@ holdout_in_data: 4 of 4
 # and its dev split from val-labeled rows, so no example crosses a
 # partition boundary.
 split_labeled: 23 train / 3 val / 4 test
-check_type: exact
+check_type: llm_equality
 # routerllm's holdout numbers, recomputed from joined_14.jsonl.
 # Comparable only if graded the same way — see grading_note.
 baselines:

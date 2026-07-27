@@ -1,30 +1,21 @@
-# hle — imported from routerllm by scripts/import_routerllm_benchmarks.py
+# hle — full text-only set, imported by scripts/import_hle.py from cais/hle.
+# Same subset Artificial Analysis evaluates (multimodal questions excluded);
+# graded with the official HLE equality-checker prompt (check_type:
+# llm_equality), so accuracy is percentage correct as AA reports it.
 name: hle
 description: >-
-  Answer a Humanity's Last Exam question — expert-level, across many fields. Answers are short and specific; an answer is correct if it matches the reference.
+  Answer a Humanity's Last Exam question — expert-level, across many fields. Answers are short and specific; an answer is correct only if it matches the reference (binary equality check, no partial credit).
 source_dataset: cais/hle
 num_fewshot: 0
-examples: 200
-sampled_from: 200
-routerllm_grader: judge
+examples: 2158
+sampled_from: 2158
+grader_label: equality (official HLE checker)
 grading_supported: true
-# routerllm allocated a holdout for this task; the rows below labeled
-# "split": "test" are the holdout examples present in the export, and the
-# optimizer uses exactly those as its test split — the same examples the
-# baselines were measured on. Partial coverage means the export was itself
-# a sample; zero means the export's doc_ids could not be matched.
-holdout_in_data: 13 of 189
-# Rows labeled train/val carry routerllm's own 80/10/10 partition (via
-# split.json): the optimizer draws its train split from train-labeled rows
-# and its dev split from val-labeled rows, so no example crosses a
-# partition boundary.
-split_labeled: 158 train / 29 val / 13 test
-check_type: llm_judge
-# routerllm's holdout numbers, recomputed from joined_14.jsonl.
-# Comparable only if graded the same way — see grading_note.
-baselines:
-  n: 189
-  haiku: 0.0476
-  opus: 0.2169
-  router: 0.2169
-  oracle: 0.2434
+# Full AA question set graded with AA's own protocol (equality checker on
+# GPT-4o Aug) — scores are comparable to Artificial Analysis's numbers.
+aa_validated: true
+# Split into equal thirds with a seeded shuffle (seed 0) — no routerllm
+# allocation; the old 200-example routerllm sample and its baselines were
+# replaced by this full import, so no external baselines apply to these splits.
+split_labeled: 719 train / 719 val / 720 test
+check_type: llm_equality

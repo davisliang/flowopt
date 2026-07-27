@@ -352,7 +352,13 @@ def test_benchmarks_are_listed_with_their_metadata():
     if not found:
         pytest.skip("benchmarks/ not imported in this checkout")
     assert "ifeval" in found and "arc_agi_2" in found
-    assert found["ifeval"]["baselines"]["haiku"] == pytest.approx(0.8478, abs=1e-4)
+    # full-set imports carry seeded thirds, no routerllm baselines
+    assert found["ifeval"]["splits"] == {"rows": 541, "train": 180, "val": 180, "test": 181}
+    assert found["ifeval"]["baselines"] == {}
+    # the AA-equivalence marker: full AA question set + AA's grading protocol
+    assert found["hle"]["aa_validated"] is True
+    assert found["math_500"]["aa_validated"] is True
+    assert found["ifeval"]["aa_validated"] is False     # AA runs IFBench, not IFEval
     # partition counts surface for the picker; unallocated benchmarks read zero
     assert found["gpqa_diamond_gen"]["splits"]["test"] == 25
     assert found["gpqa_diamond_gen"]["splits"]["train"] > 0
@@ -565,7 +571,7 @@ def test_a_probe_measures_tokens_and_whether_the_cheap_model_can_do_it():
     data = [{"question": "q1", "answer": "x"}, {"question": "q2", "answer": "x"},
             {"question": "q3", "answer": "no"}]
 
-    probe = costs.run_probe(cfg, ProbeClient(catalog), Grader(kind="exact"), data, n=3)
+    probe = costs.run_probe(ProbeClient(catalog), Grader(kind="exact"), data, n=3)
     assert probe.n == 3
     assert probe.input_tokens == 1000 and probe.output_tokens == 500
     assert probe.accuracy == pytest.approx(2 / 3)     # two of three golds are "x"
@@ -581,7 +587,7 @@ def test_a_probe_that_cannot_reach_the_api_degrades_instead_of_breaking():
             raise RuntimeError("overloaded")
 
     cfg = load_config("gsm8k")
-    probe = costs.run_probe(cfg, Broken(ModelCatalog.from_config(cfg)), Grader(kind="exact"),
+    probe = costs.run_probe(Broken(ModelCatalog.from_config(cfg)), Grader(kind="exact"),
                             [{"question": "q", "answer": "a"}], n=3)
     assert probe.n == 0          # the caller falls back to defaults rather than failing
 
@@ -634,11 +640,11 @@ def test_the_estimate_sizes_itself_from_the_dataset_not_the_request():
 
 
 def test_the_estimate_knows_blank_sizes_take_a_partition_whole(runs_dir):
-    """bbeh's 417-example holdout would cost ~5x an estimate that assumed the
-    fraction split — blank dev/test on an allocated benchmark run the whole
-    partition, and the estimate must say so."""
+    """bbeh's 1,508-example test partition would cost ~5x an estimate that
+    assumed the fraction split — blank dev/test on a partitioned benchmark run
+    the whole partition, and the estimate must say so."""
     result = server.estimate_cost("bbeh_gen", {})
-    assert any("allocation" in a and "417 test" in a for a in result["assumptions"]), \
+    assert any("allocation" in a and "1508 test" in a for a in result["assumptions"]), \
         result["assumptions"]
 
 

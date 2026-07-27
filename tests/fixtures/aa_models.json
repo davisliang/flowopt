@@ -683,6 +683,386 @@
   "median_time_to_first_token_seconds": 1.275,
   "median_time_to_first_answer_token": 1.275
  },
+ "muse-spark-1-1": {
+  "id": "d61493e2-43ff-460c-9054-eaf6ba317360",
+  "name": "Muse Spark 1.1 (xhigh)",
+  "slug": "muse-spark-1-1",
+  "release_date": "2026-07-09",
+  "model_creator": {
+   "id": "e1694725-0192-4e54-b1b8-c97e816c6cbe",
+   "name": "Meta",
+   "slug": "meta"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 50.6,
+   "artificial_analysis_coding_index": 71.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.898,
+   "hle": 0.451,
+   "livecodebench": null,
+   "scicode": 0.582,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.633333333333333,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.779026217228464,
+   "tau2": null,
+   "tau_banking": 0.251546391752577
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2,
+   "price_1m_input_tokens": 1.25,
+   "price_1m_output_tokens": 4.25
+  },
+  "median_output_tokens_per_second": 123.879,
+  "median_time_to_first_token_seconds": 1.023,
+  "median_time_to_first_answer_token": 17.167
+ },
+ "gemini-3-1-pro-preview": {
+  "id": "bbd93ebe-80da-4594-bb19-61e69d0331df",
+  "name": "Gemini 3.1 Pro Preview",
+  "slug": "gemini-3-1-pro-preview",
+  "release_date": "2026-02-19",
+  "model_creator": {
+   "id": "faddc6d9-2c14-445f-9b28-56726f59c793",
+   "name": "Google",
+   "slug": "google"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 46.5,
+   "artificial_analysis_coding_index": 68.8,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.941,
+   "hle": 0.447,
+   "livecodebench": null,
+   "scicode": 0.589,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.771428571428571,
+   "lcr": 0.726666666666667,
+   "terminalbench_hard": 0.537878787878788,
+   "terminalbench_v2_1": 0.737827715355805,
+   "tau2": 0.956140350877193,
+   "tau_banking": 0.164948453608247
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 4.5,
+   "price_1m_input_tokens": 2,
+   "price_1m_output_tokens": 12
+  },
+  "median_output_tokens_per_second": 132.247,
+  "median_time_to_first_token_seconds": 30.979,
+  "median_time_to_first_answer_token": 30.979
+ },
+ "gemini-3-6-flash": {
+  "id": "78332c88-fe60-42c8-af9d-3617e44cf1f5",
+  "name": "Gemini 3.6 Flash (high)",
+  "slug": "gemini-3-6-flash",
+  "release_date": "2026-07-21",
+  "model_creator": {
+   "id": "faddc6d9-2c14-445f-9b28-56726f59c793",
+   "name": "Google",
+   "slug": "google"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 50.1,
+   "artificial_analysis_coding_index": 69.2,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.928,
+   "hle": 0.383,
+   "livecodebench": null,
+   "scicode": 0.527,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.696666666666667,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.775280898876405,
+   "tau2": null,
+   "tau_banking": 0.245360824742268
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 3,
+   "price_1m_input_tokens": 1.5,
+   "price_1m_output_tokens": 7.5
+  },
+  "median_output_tokens_per_second": 219.364,
+  "median_time_to_first_token_seconds": 14.515,
+  "median_time_to_first_answer_token": 14.515
+ },
+ "gemini-3-5-flash-lite": {
+  "id": "093b9df2-ebee-4309-943f-5a7e88360adf",
+  "name": "Gemini 3.5 Flash-Lite",
+  "slug": "gemini-3-5-flash-lite",
+  "release_date": "2026-07-21",
+  "model_creator": {
+   "id": "faddc6d9-2c14-445f-9b28-56726f59c793",
+   "name": "Google",
+   "slug": "google"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 36.5,
+   "artificial_analysis_coding_index": 49.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.838,
+   "hle": 0.175,
+   "livecodebench": null,
+   "scicode": 0.409,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.62,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.535580524344569,
+   "tau2": null,
+   "tau_banking": 0.164948453608247
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 0.85,
+   "price_1m_input_tokens": 0.3,
+   "price_1m_output_tokens": 2.5
+  },
+  "median_output_tokens_per_second": 362.185,
+  "median_time_to_first_token_seconds": 7.411,
+  "median_time_to_first_answer_token": 7.411
+ },
+ "gemini-3-5-flash-medium": {
+  "id": "5016ea75-7b0e-4737-a7e6-1062c6d90fd4",
+  "name": "Gemini 3.5 Flash (medium)",
+  "slug": "gemini-3-5-flash-medium",
+  "release_date": "2026-05-19",
+  "model_creator": {
+   "id": "faddc6d9-2c14-445f-9b28-56726f59c793",
+   "name": "Google",
+   "slug": "google"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 45.4,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.921,
+   "hle": 0.399,
+   "livecodebench": null,
+   "scicode": 0.53,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.745578231292517,
+   "lcr": 0.71,
+   "terminalbench_hard": 0.393939393939394,
+   "terminalbench_v2_1": null,
+   "tau2": 0.956140350877193,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 3.375,
+   "price_1m_input_tokens": 1.5,
+   "price_1m_output_tokens": 9
+  },
+  "median_output_tokens_per_second": 265.206,
+  "median_time_to_first_token_seconds": 11.897,
+  "median_time_to_first_answer_token": 11.897
+ },
+ "gemini-3-5-flash-minimal": {
+  "id": "033ade17-d9ec-44e0-b792-b5f1fcd5ab4c",
+  "name": "Gemini 3.5 Flash (minimal)",
+  "slug": "gemini-3-5-flash-minimal",
+  "release_date": "2026-05-19",
+  "model_creator": {
+   "id": "faddc6d9-2c14-445f-9b28-56726f59c793",
+   "name": "Google",
+   "slug": "google"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 34.9,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.828,
+   "hle": 0.231,
+   "livecodebench": null,
+   "scicode": 0.488,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.472789115646259,
+   "lcr": 0.533333333333333,
+   "terminalbench_hard": 0.462121212121212,
+   "terminalbench_v2_1": null,
+   "tau2": 0.587719298245614,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 3.375,
+   "price_1m_input_tokens": 1.5,
+   "price_1m_output_tokens": 9
+  },
+  "median_output_tokens_per_second": 228.296,
+  "median_time_to_first_token_seconds": 0.825,
+  "median_time_to_first_answer_token": 0.825
+ },
+ "gemini-3-5-flash": {
+  "id": "0097ebf5-124f-42f6-9463-33b00e711f03",
+  "name": "Gemini 3.5 Flash (high)",
+  "slug": "gemini-3-5-flash",
+  "release_date": "2026-05-19",
+  "model_creator": {
+   "id": "faddc6d9-2c14-445f-9b28-56726f59c793",
+   "name": "Google",
+   "slug": "google"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 50.2,
+   "artificial_analysis_coding_index": 70.1,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.922,
+   "hle": 0.41,
+   "livecodebench": null,
+   "scicode": 0.531,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.763265306122449,
+   "lcr": 0.693333333333333,
+   "terminalbench_hard": 0.409090909090909,
+   "terminalbench_v2_1": 0.786516853932584,
+   "tau2": 0.953216374269006,
+   "tau_banking": 0.25360824742268
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 3.375,
+   "price_1m_input_tokens": 1.5,
+   "price_1m_output_tokens": 9
+  },
+  "median_output_tokens_per_second": 250.262,
+  "median_time_to_first_token_seconds": 17.16,
+  "median_time_to_first_answer_token": 17.16
+ },
+ "claude-4-5-haiku": {
+  "id": "c2b1e769-7aee-4669-8076-73918bdebf6c",
+  "name": "Claude 4.5 Haiku (Non-reasoning)",
+  "slug": "claude-4-5-haiku",
+  "release_date": "2025-10-15",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 23.7,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": 39,
+   "mmlu_pro": 0.8,
+   "gpqa": 0.646,
+   "hle": 0.043,
+   "livecodebench": 0.511,
+   "scicode": 0.344,
+   "math_500": null,
+   "aime": null,
+   "aime_25": 0.39,
+   "ifbench": 0.420408163265306,
+   "lcr": 0.436666666666667,
+   "terminalbench_hard": 0.272727272727273,
+   "terminalbench_v2_1": null,
+   "tau2": 0.324561403508772,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2,
+   "price_1m_input_tokens": 1,
+   "price_1m_output_tokens": 5
+  },
+  "median_output_tokens_per_second": 110.692,
+  "median_time_to_first_token_seconds": 0.713,
+  "median_time_to_first_answer_token": 0.713
+ },
+ "claude-opus-5": {
+  "id": "b8fc61f7-5e9a-49e6-8547-6ac56db24627",
+  "name": "Claude Opus 5 (Adaptive Reasoning, Max Effort)",
+  "slug": "claude-opus-5",
+  "release_date": "2026-07-24",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 60.7,
+   "artificial_analysis_coding_index": 78,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.932,
+   "hle": 0.526,
+   "livecodebench": null,
+   "scicode": 0.557,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.7,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.891385767790262,
+   "tau2": null,
+   "tau_banking": 0.303092783505155
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 10,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 25
+  },
+  "median_output_tokens_per_second": 43.944,
+  "median_time_to_first_token_seconds": 28.698,
+  "median_time_to_first_answer_token": 28.698
+ },
+ "claude-opus-5-high": {
+  "id": "712be54a-77ae-41b2-9a58-21181479d6ee",
+  "name": "Claude Opus 5 (Adaptive Reasoning, High Effort)",
+  "slug": "claude-opus-5-high",
+  "release_date": "2026-07-24",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 58.9,
+   "artificial_analysis_coding_index": 76.5,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.937,
+   "hle": 0.507,
+   "livecodebench": null,
+   "scicode": 0.543,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.67,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.876404494382023,
+   "tau2": null,
+   "tau_banking": 0.327835051546392
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 10,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 25
+  },
+  "median_output_tokens_per_second": 50.124,
+  "median_time_to_first_token_seconds": 10.052,
+  "median_time_to_first_answer_token": 10.052
+ },
  "claude-sonnet-5-high": {
   "id": "ba0224cf-0351-4f56-8508-b3f1a740ae4a",
   "name": "Claude Sonnet 5 (Adaptive Reasoning, High Effort)",
@@ -835,6 +1215,82 @@
   "median_time_to_first_token_seconds": 24.6,
   "median_time_to_first_answer_token": 24.6
  },
+ "claude-opus-5-xhigh": {
+  "id": "1305c921-7aaa-4d6d-99b5-99b3acf15e19",
+  "name": "Claude Opus 5 (Adaptive Reasoning, Xhigh Effort)",
+  "slug": "claude-opus-5-xhigh",
+  "release_date": "2026-07-24",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 60.1,
+   "artificial_analysis_coding_index": 77,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.937,
+   "hle": 0.525,
+   "livecodebench": null,
+   "scicode": 0.55,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.686666666666667,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.880149812734082,
+   "tau2": null,
+   "tau_banking": 0.315463917525773
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 10,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 25
+  },
+  "median_output_tokens_per_second": 60.357,
+  "median_time_to_first_token_seconds": 22.558,
+  "median_time_to_first_answer_token": 22.558
+ },
+ "claude-opus-5-low": {
+  "id": "20928ba9-3a3f-415f-9519-b84ff64ecf34",
+  "name": "Claude Opus 5 (Adaptive Reasoning, Low Effort)",
+  "slug": "claude-opus-5-low",
+  "release_date": "2026-07-24",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 50.6,
+   "artificial_analysis_coding_index": 66.9,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.889,
+   "hle": 0.413,
+   "livecodebench": null,
+   "scicode": 0.48,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.693333333333333,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.764044943820225,
+   "tau2": null,
+   "tau_banking": 0.232989690721649
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 10,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 25
+  },
+  "median_output_tokens_per_second": 46.69,
+  "median_time_to_first_token_seconds": 2.763,
+  "median_time_to_first_answer_token": 2.763
+ },
  "claude-sonnet-5": {
   "id": "23c86e4a-c769-43c0-a056-79e3cd15834f",
   "name": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort)",
@@ -872,6 +1328,44 @@
   "median_output_tokens_per_second": 83.419,
   "median_time_to_first_token_seconds": 108.375,
   "median_time_to_first_answer_token": 108.375
+ },
+ "claude-opus-5-medium": {
+  "id": "ff51be8f-e362-4a7e-9043-687ba15de207",
+  "name": "Claude Opus 5 (Adaptive Reasoning, Medium Effort)",
+  "slug": "claude-opus-5-medium",
+  "release_date": "2026-07-24",
+  "model_creator": {
+   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
+   "name": "Anthropic",
+   "slug": "anthropic"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 56.3,
+   "artificial_analysis_coding_index": 74.3,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.919,
+   "hle": 0.492,
+   "livecodebench": null,
+   "scicode": 0.507,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.69,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.861423220973783,
+   "tau2": null,
+   "tau_banking": 0.28659793814433
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 10,
+   "price_1m_input_tokens": 5,
+   "price_1m_output_tokens": 25
+  },
+  "median_output_tokens_per_second": 55.629,
+  "median_time_to_first_token_seconds": 9.657,
+  "median_time_to_first_answer_token": 9.657
  },
  "claude-opus-4-8": {
   "id": "992b7b84-5069-4c6a-9295-834252553d50",
@@ -949,80 +1443,346 @@
   "median_time_to_first_token_seconds": 1.219,
   "median_time_to_first_answer_token": 1.219
  },
- "claude-4-5-haiku": {
-  "id": "c2b1e769-7aee-4669-8076-73918bdebf6c",
-  "name": "Claude 4.5 Haiku (Non-reasoning)",
-  "slug": "claude-4-5-haiku",
-  "release_date": "2025-10-15",
+ "deepseek-v4-pro-high": {
+  "id": "5da3c0e2-65d2-4bff-a410-cb2132ddafb6",
+  "name": "DeepSeek V4 Pro (Reasoning, High Effort)",
+  "slug": "deepseek-v4-pro-high",
+  "release_date": "2026-04-24",
   "model_creator": {
-   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
-   "name": "Anthropic",
-   "slug": "anthropic"
+   "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+   "name": "DeepSeek",
+   "slug": "deepseek"
   },
   "evaluations": {
-   "artificial_analysis_intelligence_index": 23.7,
-   "artificial_analysis_coding_index": null,
-   "artificial_analysis_math_index": 39,
-   "mmlu_pro": 0.8,
-   "gpqa": 0.646,
-   "hle": 0.043,
-   "livecodebench": 0.511,
-   "scicode": 0.344,
+   "artificial_analysis_intelligence_index": 43.1,
+   "artificial_analysis_coding_index": 58.7,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.905,
+   "hle": 0.335,
+   "livecodebench": null,
+   "scicode": 0.464,
    "math_500": null,
    "aime": null,
-   "aime_25": 0.39,
-   "ifbench": 0.420408163265306,
-   "lcr": 0.436666666666667,
-   "terminalbench_hard": 0.272727272727273,
+   "aime_25": null,
+   "ifbench": 0.712925170068027,
+   "lcr": 0.65,
+   "terminalbench_hard": 0.416666666666667,
+   "terminalbench_v2_1": 0.647940074906367,
+   "tau2": 0.941520467836257,
+   "tau_banking": 0.237113402061856
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 0.544,
+   "price_1m_input_tokens": 0.435,
+   "price_1m_output_tokens": 0.87
+  },
+  "median_output_tokens_per_second": 72.931,
+  "median_time_to_first_token_seconds": 0.922,
+  "median_time_to_first_answer_token": 28.236
+ },
+ "deepseek-v4-flash-non-reasoning": {
+  "id": "ad173c8d-f14f-4230-90e9-60979b7720e7",
+  "name": "DeepSeek V4 Flash (Non-reasoning)",
+  "slug": "deepseek-v4-flash-non-reasoning",
+  "release_date": "2026-04-24",
+  "model_creator": {
+   "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+   "name": "DeepSeek",
+   "slug": "deepseek"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 28.7,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.716,
+   "hle": 0.07,
+   "livecodebench": null,
+   "scicode": 0.373,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.472108843537415,
+   "lcr": 0.333333333333333,
+   "terminalbench_hard": 0.340909090909091,
    "terminalbench_v2_1": null,
-   "tau2": 0.324561403508772,
+   "tau2": 0.944444444444445,
    "tau_banking": null
   },
   "pricing": {
-   "price_1m_blended_3_to_1": 2,
-   "price_1m_input_tokens": 1,
-   "price_1m_output_tokens": 5
+   "price_1m_blended_3_to_1": 0.175,
+   "price_1m_input_tokens": 0.14,
+   "price_1m_output_tokens": 0.28
   },
-  "median_output_tokens_per_second": 110.692,
-  "median_time_to_first_token_seconds": 0.713,
-  "median_time_to_first_answer_token": 0.713
+  "median_output_tokens_per_second": 115.178,
+  "median_time_to_first_token_seconds": 0.894,
+  "median_time_to_first_answer_token": 0.894
  },
- "claude-4-5-haiku-reasoning": {
-  "id": "a6340098-d7ae-462d-b372-0a0a67fc44b4",
-  "name": "Claude 4.5 Haiku (Reasoning)",
-  "slug": "claude-4-5-haiku-reasoning",
-  "release_date": "2025-10-15",
+ "deepseek-v4-pro": {
+  "id": "bf220674-68bd-43cc-a1b8-ce5ed4d2f18d",
+  "name": "DeepSeek V4 Pro (Reasoning, Max Effort)",
+  "slug": "deepseek-v4-pro",
+  "release_date": "2026-04-24",
   "model_creator": {
-   "id": "f0aa413f-e8ae-4fcd-9c48-0e049f4f3128",
-   "name": "Anthropic",
-   "slug": "anthropic"
+   "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+   "name": "DeepSeek",
+   "slug": "deepseek"
   },
   "evaluations": {
-   "artificial_analysis_intelligence_index": 29.6,
-   "artificial_analysis_coding_index": 43.9,
-   "artificial_analysis_math_index": 83.7,
-   "mmlu_pro": 0.76,
-   "gpqa": 0.672,
-   "hle": 0.097,
-   "livecodebench": 0.615,
-   "scicode": 0.433,
+   "artificial_analysis_intelligence_index": 44.3,
+   "artificial_analysis_coding_index": 59.4,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.888,
+   "hle": 0.359,
+   "livecodebench": null,
+   "scicode": 0.5,
    "math_500": null,
    "aime": null,
-   "aime_25": 0.836666666666667,
-   "ifbench": 0.542857142857143,
-   "lcr": 0.703333333333333,
-   "terminalbench_hard": 0.272727272727273,
-   "terminalbench_v2_1": 0.441947565543071,
-   "tau2": 0.546783625730994,
-   "tau_banking": 0.0907216494845361
+   "aime_25": null,
+   "ifbench": 0.764625850340136,
+   "lcr": 0.663333333333333,
+   "terminalbench_hard": 0.462121212121212,
+   "terminalbench_v2_1": 0.640449438202247,
+   "tau2": 0.961988304093567,
+   "tau_banking": 0.257731958762887
   },
   "pricing": {
-   "price_1m_blended_3_to_1": 2,
-   "price_1m_input_tokens": 1,
-   "price_1m_output_tokens": 5
+   "price_1m_blended_3_to_1": 0.544,
+   "price_1m_input_tokens": 0.435,
+   "price_1m_output_tokens": 0.87
   },
-  "median_output_tokens_per_second": 150.218,
-  "median_time_to_first_token_seconds": 15.731,
-  "median_time_to_first_answer_token": 15.731
+  "median_output_tokens_per_second": 70.891,
+  "median_time_to_first_token_seconds": 1.021,
+  "median_time_to_first_answer_token": 62.736
+ },
+ "deepseek-v4-flash": {
+  "id": "d8ddb241-b3e4-4c25-a6a3-72eb1b30c541",
+  "name": "DeepSeek V4 Flash (Reasoning, Max Effort)",
+  "slug": "deepseek-v4-flash",
+  "release_date": "2026-04-24",
+  "model_creator": {
+   "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+   "name": "DeepSeek",
+   "slug": "deepseek"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 40.3,
+   "artificial_analysis_coding_index": 56.2,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.894,
+   "hle": 0.321,
+   "livecodebench": null,
+   "scicode": 0.449,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.791836734693877,
+   "lcr": 0.63,
+   "terminalbench_hard": 0.356060606060606,
+   "terminalbench_v2_1": 0.617977528089888,
+   "tau2": 0.950292397660819,
+   "tau_banking": 0.228865979381443
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 0.175,
+   "price_1m_input_tokens": 0.14,
+   "price_1m_output_tokens": 0.28
+  },
+  "median_output_tokens_per_second": 117.726,
+  "median_time_to_first_token_seconds": 0.861,
+  "median_time_to_first_answer_token": 48.54
+ },
+ "deepseek-v4-flash-high": {
+  "id": "89a2c945-1fab-4ee4-9f45-83a9f46cb221",
+  "name": "DeepSeek V4 Flash (Reasoning, High Effort)",
+  "slug": "deepseek-v4-flash-high",
+  "release_date": "2026-04-24",
+  "model_creator": {
+   "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+   "name": "DeepSeek",
+   "slug": "deepseek"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 37.5,
+   "artificial_analysis_coding_index": 52,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.867,
+   "hle": 0.278,
+   "livecodebench": null,
+   "scicode": 0.42,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.734693877551021,
+   "lcr": 0.626666666666667,
+   "terminalbench_hard": 0.386363636363636,
+   "terminalbench_v2_1": 0.569288389513109,
+   "tau2": 0.956140350877193,
+   "tau_banking": 0.197938144329897
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 0.175,
+   "price_1m_input_tokens": 0.14,
+   "price_1m_output_tokens": 0.28
+  },
+  "median_output_tokens_per_second": 0,
+  "median_time_to_first_token_seconds": 0,
+  "median_time_to_first_answer_token": 0
+ },
+ "deepseek-v4-pro-non-reasoning": {
+  "id": "6e2a2572-ed8d-4616-8d7d-68d125fc8ee7",
+  "name": "DeepSeek V4 Pro (Non-reasoning)",
+  "slug": "deepseek-v4-pro-non-reasoning",
+  "release_date": "2026-04-24",
+  "model_creator": {
+   "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+   "name": "DeepSeek",
+   "slug": "deepseek"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 31.2,
+   "artificial_analysis_coding_index": null,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.717,
+   "hle": 0.077,
+   "livecodebench": null,
+   "scicode": 0.424,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.457823129251701,
+   "lcr": 0.45,
+   "terminalbench_hard": 0.363636363636364,
+   "terminalbench_v2_1": null,
+   "tau2": 0.912280701754386,
+   "tau_banking": null
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 0.544,
+   "price_1m_input_tokens": 0.435,
+   "price_1m_output_tokens": 0.87
+  },
+  "median_output_tokens_per_second": 72.703,
+  "median_time_to_first_token_seconds": 1.125,
+  "median_time_to_first_answer_token": 1.125
+ },
+ "kimi-k3": {
+  "id": "f7d2fc3e-1f7b-405f-818c-07952a4af78f",
+  "name": "Kimi K3",
+  "slug": "kimi-k3",
+  "release_date": "2026-07-16",
+  "model_creator": {
+   "id": "0a177021-87dd-4250-9a37-f01df196bfe0",
+   "name": "Kimi",
+   "slug": "kimi"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 57.1,
+   "artificial_analysis_coding_index": 76.2,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.935,
+   "hle": 0.443,
+   "livecodebench": null,
+   "scicode": 0.587,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.746666666666667,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.850187265917603,
+   "tau2": null,
+   "tau_banking": 0.334020618556701
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 6,
+   "price_1m_input_tokens": 3,
+   "price_1m_output_tokens": 15
+  },
+  "median_output_tokens_per_second": 33.073,
+  "median_time_to_first_token_seconds": 102.958,
+  "median_time_to_first_answer_token": 163.432
+ },
+ "glm-5-2-non-reasoning": {
+  "id": "e8aa417f-18fe-46b0-ba62-ef99785a9585",
+  "name": "GLM-5.2 (Non-reasoning)",
+  "slug": "glm-5-2-non-reasoning",
+  "release_date": "2026-06-16",
+  "model_creator": {
+   "id": "67437eb6-7dc1-4e93-befd-22c8b8ec2065",
+   "name": "Z AI",
+   "slug": "zai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 34.1,
+   "artificial_analysis_coding_index": 46.5,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.686,
+   "hle": 0.084,
+   "livecodebench": null,
+   "scicode": 0.361,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": null,
+   "lcr": 0.373333333333333,
+   "terminalbench_hard": null,
+   "terminalbench_v2_1": 0.51685393258427,
+   "tau2": null,
+   "tau_banking": 0.156701030927835
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.076,
+   "price_1m_input_tokens": 1.351,
+   "price_1m_output_tokens": 4.25
+  },
+  "median_output_tokens_per_second": 85.679,
+  "median_time_to_first_token_seconds": 1.86,
+  "median_time_to_first_answer_token": 1.86
+ },
+ "glm-5-2": {
+  "id": "f7a4ea75-e548-4069-80d4-9be8bc7c009b",
+  "name": "GLM-5.2 (max)",
+  "slug": "glm-5-2",
+  "release_date": "2026-06-16",
+  "model_creator": {
+   "id": "67437eb6-7dc1-4e93-befd-22c8b8ec2065",
+   "name": "Z AI",
+   "slug": "zai"
+  },
+  "evaluations": {
+   "artificial_analysis_intelligence_index": 51.1,
+   "artificial_analysis_coding_index": 68.8,
+   "artificial_analysis_math_index": null,
+   "mmlu_pro": null,
+   "gpqa": 0.895,
+   "hle": 0.401,
+   "livecodebench": null,
+   "scicode": 0.505,
+   "math_500": null,
+   "aime": null,
+   "aime_25": null,
+   "ifbench": 0.733333333333333,
+   "lcr": 0.713333333333333,
+   "terminalbench_hard": 0.507575757575758,
+   "terminalbench_v2_1": 0.779026217228464,
+   "tau2": 0.991228070175439,
+   "tau_banking": 0.268041237113402
+  },
+  "pricing": {
+   "price_1m_blended_3_to_1": 2.15,
+   "price_1m_input_tokens": 1.4,
+   "price_1m_output_tokens": 4.4
+  },
+  "median_output_tokens_per_second": 156.68,
+  "median_time_to_first_token_seconds": 0.906,
+  "median_time_to_first_answer_token": 13.671
  }
 }

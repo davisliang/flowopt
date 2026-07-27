@@ -25,7 +25,8 @@ class TaskAnalysis(BaseModel):
     Attributes:
         description: One paragraph describing the task. Briefs the design agent
             and grounds the judge.
-        check_type: Which grading rule fits — "numeric", "exact" or "llm_judge".
+        check_type: Which grading rule fits — "numeric", "exact", "llm_judge"
+            or "llm_equality".
         judge_rubric: Grading criteria for free-form tasks; "" for the others.
         answer_examples: Correctly formatted answers. Shown to the design agent
             as the target format, and used to calibrate the rubric.
@@ -33,7 +34,7 @@ class TaskAnalysis(BaseModel):
     model_config = ConfigDict(extra="forbid")   # -> additionalProperties: false
 
     description: str
-    check_type: Literal["numeric", "exact", "llm_judge"]
+    check_type: Literal["numeric", "exact", "llm_judge", "llm_equality"]
     judge_rubric: str
     answer_examples: list[str]
 
@@ -77,14 +78,15 @@ def split_examples(cfg, data: list[dict], log=print) -> tuple[list, list, list]:
     (self-tests, few-shot material), so nothing the agent tunes against is ever
     scored. Dev guides the search; test is held out for the final ranking.
 
-    Examples carrying `"split"` labels are an external allocation — routerllm's
-    own 80/10/10 partition. Each of our splits then draws ONLY from its
-    counterpart: train from their train, dev from their val, test from their
-    test (the holdout its baselines were measured on), so no example ever
-    crosses a partition boundary and test numbers are computed on the same
-    examples as the baselines. With only test labels, train/dev draw from the
-    unlabeled rest; with no labels the split is random. Either way the
-    sampling is seeded, so two runs at the same sizes score the same examples.
+    Examples carrying `"split"` labels are a fixed partition — the seeded
+    thirds the full-set imports write, or routerllm's 80/10/10 allocation on
+    the remaining routerllm samples. Each of our splits then draws ONLY from
+    its counterpart: train from its train, dev from its val, test from its
+    test, so no example ever crosses a partition boundary and a sized-down
+    test stays an unbiased sample of the fixed holdout. With only test labels,
+    train/dev draw from the unlabeled rest; with no labels the split is
+    random. Either way the sampling is seeded, so two runs at the same sizes
+    score the same examples.
 
     Sizes come from `cfg.data`: `n_train` always; `n_dev`/`n_test` when both
     are set, else `n_examples` capped and `dev_fraction` split.
@@ -116,9 +118,10 @@ def split_examples(cfg, data: list[dict], log=print) -> tuple[list, list, list]:
         return part if n <= 0 or n >= len(part) else rng.sample(part, n)
 
     if allocated_train or allocated_val:
-        # A full routerllm allocation: our test = their test, our dev samples
-        # their val, our train samples their train — each partition drawn from
-        # the partition routerllm assigned it, never across.
+        # Fully partitioned data (routerllm's allocation, or the seeded thirds
+        # the full-set imports write): our test = its test, our dev samples its
+        # val, our train samples its train — each split drawn from the partition
+        # the data assigns it, never across.
         test = pick(allocated, n_test)
         train_pool = allocated_train + pool
         if allocated_val:
@@ -128,7 +131,7 @@ def split_examples(cfg, data: list[dict], log=print) -> tuple[list, list, list]:
             cut = max(1, n_dev or int(len(train_pool) * cfg.data.dev_fraction))
             dev, train_pool = train_pool[:cut], train_pool[cut:]
         train = pick(train_pool, n_train) if n_train > 0 else []
-        log(f"splits drawn from routerllm's allocation: "
+        log(f"splits drawn from the dataset's partition: "
             f"{len(train)} of {len(train_pool)} train, "
             f"{len(dev)} of {len(allocated_val) or len(dev)} val->dev, "
             f"{len(test)} of {len(allocated)} test")
@@ -187,6 +190,12 @@ def build_benchmark(cfg, client, log=print) -> Benchmark:
         rubric, judge_status = calibrate_rubric(cfg, client, analysis)
         grader = Grader(kind="llm_judge", client=client, judge_model=cfg.judge.model,
                         task=analysis.description, rubric=rubric)
+    elif analysis.check_type == "llm_equality":
+        # Binary equality against the reference, official HLE checker prompt —
+        # no rubric, so nothing to calibrate.
+        grader = Grader(kind="llm_equality", client=client, judge_model=cfg.judge.model,
+                        task=analysis.description)
+        judge_status = f"equality checker on {cfg.judge.model}"
     else:
         grader, judge_status = Grader(kind=analysis.check_type), "n/a (not an LLM judge)"
 
@@ -203,7 +212,7 @@ def build_benchmark(cfg, client, log=print) -> Benchmark:
                           train=train, dev=dev, test=test, judge_status=judge_status)
 
     log(f"check    = {grader.kind}")
-    if grader.kind == "llm_judge":
+    if grader.kind in ("llm_judge", "llm_equality"):
         log(f"judge    = {judge_status}")
     if analysis.answer_examples:
         log(f"answers  = {', '.join(repr(e) for e in analysis.answer_examples[:3])}")
@@ -252,8 +261,8 @@ def benchmark_from_dict(cfg, client, saved: dict) -> Benchmark:
     grader_info = saved.get("grader") or {}
     if cfg.task.grader:
         grader = Grader.from_grader(cfg.task.grader)
-    elif grader_info.get("kind") == "llm_judge":
-        grader = Grader(kind="llm_judge", client=client, judge_model=cfg.judge.model,
+    elif grader_info.get("kind") in ("llm_judge", "llm_equality"):
+        grader = Grader(kind=grader_info["kind"], client=client, judge_model=cfg.judge.model,
                         task=grader_info.get("task", analysis.description),
                         rubric=grader_info.get("rubric", ""))
     else:
@@ -283,7 +292,7 @@ def check_grader(grader: Grader, example: dict) -> None:
             this dataset. Judge graders are skipped — probing one costs an API
             call, and its failure mode is a score, not an exception.
     """
-    if grader.kind == "llm_judge":
+    if grader.kind in ("llm_judge", "llm_equality"):
         return
     try:
         grader.score(str(example.get("answer", "")), example)

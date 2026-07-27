@@ -1,32 +1,16 @@
-# ifeval — imported from routerllm by scripts/import_routerllm_benchmarks.py
+# ifeval — full set, imported by scripts/pull_full_benchmarks.py.
+# Replaces the routerllm sample; routerllm's partition and baselines are gone
+# (they were measured on that sample and don't transfer to these splits).
 name: ifeval
 description: >-
   Follow the instructions in the prompt exactly. Each prompt states one or more verifiable formatting constraints. An answer is correct ONLY if it satisfies EVERY constraint; content quality is not judged, only compliance. The constraints are stated in the prompt, so a response can be checked against them before being returned.
 source_dataset: google/IFEval
 num_fewshot: 0
-examples: 200
-sampled_from: 200
-routerllm_grader: native
+examples: 541
+sampled_from: 541
+grader_label: native
 grading_supported: true
-# routerllm allocated a holdout for this task; the rows below labeled
-# "split": "test" are the holdout examples present in the export, and the
-# optimizer uses exactly those as its test split — the same examples the
-# baselines were measured on. Partial coverage means the export was itself
-# a sample; zero means the export's doc_ids could not be matched.
-holdout_in_data: 17 of 46
-# Rows labeled train/val carry routerllm's own 80/10/10 partition (via
-# split.json): the optimizer draws its train split from train-labeled rows
-# and its dev split from val-labeled rows, so no example crosses a
-# partition boundary.
-split_labeled: 162 train / 21 val / 17 test
-grading_note: lm-eval's own constraint checker; needs the routerllm checkout
+# Split into equal thirds with a seeded shuffle (seed 0); size the run's
+# train/dev/test draws from these partitions when starting a search.
+split_labeled: 180 train / 180 val / 181 test
 check_type: exact
-grader: experiments/routerllm_ifeval/grader.py
-# routerllm's holdout numbers, recomputed from joined_14.jsonl.
-# Comparable only if graded the same way — see grading_note.
-baselines:
-  n: 46
-  haiku: 0.8478
-  opus: 0.8913
-  router: 0.8478
-  oracle: 0.9565

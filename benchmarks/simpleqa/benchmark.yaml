@@ -1,30 +1,16 @@
-# simpleqa — imported from routerllm by scripts/import_routerllm_benchmarks.py
+# simpleqa — full set, imported by scripts/pull_full_benchmarks.py.
+# Replaces the routerllm sample; routerllm's partition and baselines are gone
+# (they were measured on that sample and don't transfer to these splits).
 name: simpleqa
 description: >-
   Answer a SimpleQA short-form factual question. The answer is a brief fact — a name, date, or number — correct if it matches the reference.
 source_dataset: google/simpleqa-verified
 num_fewshot: 0
-examples: 200
-sampled_from: 200
-routerllm_grader: judge
+examples: 1000
+sampled_from: 1000
+grader_label: judge
 grading_supported: true
-# routerllm allocated a holdout for this task; the rows below labeled
-# "split": "test" are the holdout examples present in the export, and the
-# optimizer uses exactly those as its test split — the same examples the
-# baselines were measured on. Partial coverage means the export was itself
-# a sample; zero means the export's doc_ids could not be matched.
-holdout_in_data: 21 of 94
-# Rows labeled train/val carry routerllm's own 80/10/10 partition (via
-# split.json): the optimizer draws its train split from train-labeled rows
-# and its dev split from val-labeled rows, so no example crosses a
-# partition boundary.
-split_labeled: 155 train / 24 val / 21 test
+# Split into equal thirds with a seeded shuffle (seed 0); size the run's
+# train/dev/test draws from these partitions when starting a search.
+split_labeled: 333 train / 333 val / 334 test
 check_type: llm_judge
-# routerllm's holdout numbers, recomputed from joined_14.jsonl.
-# Comparable only if graded the same way — see grading_note.
-baselines:
-  n: 94
-  haiku: 0.0638
-  opus: 0.3191
-  router: 0.3191
-  oracle: 0.3191

@@ -1,0 +1,9 @@
+# livecodebench — placeholder documenting an Artificial Analysis benchmark we
+# cannot run: grading is pass@1 by executing generated code against tests,
+# and this repo has no sandboxed execution harness.
+name: livecodebench
+description: >-
+  Write code solving a LiveCodeBench competitive-programming problem; graded by
+  executing it against hidden tests.
+grading_supported: false
+grading_note: pass@1 by executing code — no sandboxed harness here

@@ -68,9 +68,19 @@ def evaluate(candidate_path: str) -> dict:
 
     if score.error:
         return {"ok": False, "error": score.error}
+    # Per-example failures, worst first — TRAIN examples, the ones the agent may
+    # see. This is the granular diagnosis channel: the search's dev results come
+    # back as aggregates only, so where a design breaks is learned HERE.
+    losers = sorted((r for r in score.records if r["score"] < 1.0),
+                    key=lambda r: r["score"])[:25]
+    failures = [{"question": str(r.get("question", ""))[:300],
+                 "gold": str(r.get("gold", ""))[:120],
+                 "answer": str(r.get("answer", ""))[:200],
+                 "score": r["score"],
+                 "error": str(r.get("error") or "")[:200] or None} for r in losers]
     return {"ok": True, "accuracy": score.accuracy, "cost_per_query": score.cost,
             "n": len(train), "cached_input_frac": score.cached_input_frac,
-            "errors": score.errors[:3]}
+            "errors": score.errors[:3], "failures": failures}
 
 
 main()
