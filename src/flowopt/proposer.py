@@ -73,6 +73,30 @@ def _tool_line(block) -> str:
     return f"  [tool] {name}" + (f": {detail}" if detail else "")
 
 
+def _turn_preview(content) -> str:
+    """The first ~100 chars of whatever a turn contains, for its marker line.
+
+    Scans blocks in order and previews the first one with substance — reply
+    text, thinking (which is otherwise not logged at all), or the first tool
+    call — so the markers alone read as a story of the session.
+
+    Args:
+        content: An AssistantMessage's content blocks.
+
+    Returns:
+        A one-line clipped preview, or "" for an empty turn.
+    """
+    for block in content:
+        kind = type(block).__name__
+        if kind == "TextBlock" and (block.text or "").strip():
+            return _clip(block.text, 100)
+        if kind == "ThinkingBlock" and (getattr(block, "thinking", "") or "").strip():
+            return "thinking: " + _clip(block.thinking, 90)
+        if kind == "ToolUseBlock":
+            return _clip(_tool_line(block).strip(), 100)
+    return ""
+
+
 async def main() -> None:
     """Drive one agent session to completion, echoing its progress to stdout.
 
@@ -86,6 +110,8 @@ async def main() -> None:
             non-zero exit so the search can salvage what the agent left behind.
     """
     cfg = json.loads(open("proposer_config.json").read())
+    cap = cfg.get("max_turns")
+    turn = 0
     options = ClaudeAgentOptions(
         model=cfg["model"],
         cwd=os.getcwd(),
@@ -93,9 +119,19 @@ async def main() -> None:
         skills=cfg["skills"],
         allowed_tools=cfg["allowed_tools"],
         permission_mode="bypassPermissions",
+        # The session bills per turn on a growing context; uncapped means an
+        # uncapped bill. The caller sizes this to the phase.
+        max_turns=cfg.get("max_turns"),
     )
     async for message in query(prompt=cfg["prompt"], options=options):
         if isinstance(message, AssistantMessage):
+            # Every agent turn lands in the log, numbered against the cap and
+            # carrying a content preview, so the markers alone show the pace,
+            # the remaining budget, and what each turn was about.
+            turn += 1
+            preview = _turn_preview(message.content)
+            print(f"— turn {turn}" + (f"/{cap}" if cap else "")
+                  + (f" · {preview}" if preview else "") + " —", flush=True)
             for block in message.content:
                 if isinstance(block, TextBlock):
                     # The run log shows this as "the agent's own output", so keep

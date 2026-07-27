@@ -170,6 +170,7 @@ let extraSkills = null, workingSkills = null;   // extras beyond the core set; n
 let modelChoice = null, designerChoice = null;  // null = the config defaults
 let modelFilter = "";                           // the pool picker's search text
 let pluginChoice = null;                        // request plugins; null = untouched
+let researchChoice = null, researchModelChoice = null;  // research on/off + its model
 let compareTask = "", comparePoints = [];
 let answersSplit = "", answersData = null;   // side-by-side answers, "" = closed
 let frontierPoints = [], hoveringChart = false;   // hovering pauses the refresh
@@ -301,6 +302,8 @@ async function fillTasks() {
     window._defaultTools = data.default_tools || [];
     window._plugins = data.plugins || [];
     window._defaultPlugins = data.default_plugins || [];
+    window._defaultResearch = data.default_research !== false;
+    window._defaultResearchModel = data.default_research_model || "";
     window._skills = data.skills || [];
     window._defaultWorking = !!data.default_working_skills;
   }
@@ -312,10 +315,13 @@ async function fillTasks() {
   renderSkills();
   if (!window._modelDir) {
     // The OpenRouter x Artificial Analysis directory — fetched once, then the
-    // picker re-renders with prices and capability indices filled in.
-    fetch("/api/models").then(r => r.json()).then(dir => {
-      window._modelDir = dir; renderModels();
-    }).catch(() => {});
+    // picker re-renders with prices and capability indices filled in. An error
+    // payload is NOT a directory, and render problems must surface, so only the
+    // fetch itself is guarded.
+    fetch("/api/models").then(r => r.json())
+      .then(dir => { if (dir && dir.models) window._modelDir = dir; })
+      .catch(() => {})
+      .finally(() => renderModels());
   }
 }
 
@@ -377,7 +383,20 @@ function renderModels() {
       dir.models.map(m => `<option value="${esc(m.id)}">`).join("") + `</datalist>
       <div class="desc">writes the workflows — type to search any OpenRouter model (its agent
         session runs on the Claude Code harness via OpenRouter, so Claude models are the
-        best-tested choice; billed through OpenRouter either way)</div>`;
+        best-tested choice; billed through OpenRouter either way)</div>
+      <label style="margin-top:8px">research agent model</label>
+      <input list="model-ids" id="f-research-model"
+        value="${esc(researchModelChoice || window._defaultResearchModel || "")}"
+        onfocus="this.select()" onchange="researchModelChoice=this.value.trim()||null"
+        style="width:100%;background:#0a0e14;color:#cfd6e4;border:1px solid #2a313c;
+               border-radius:4px;padding:5px 6px;font:inherit;font-size:12px">
+      <div class="desc">reads the web and writes the briefing the design agent works from — the
+        designer never sees the sources, so a cheap model here saves real money.
+        <label style="display:inline;text-transform:none;color:#bdc4d3">
+          <input type="checkbox" style="width:auto"
+            ${(researchChoice == null ? window._defaultResearch : researchChoice) ? "checked" : ""}
+            onchange="researchChoice=this.checked"> research phase enabled</label>
+        — a hard turn cap applies either way (designer.research_max_turns, default 40)</div>`;
   }
   renderModelList();
 }
@@ -444,7 +463,23 @@ function renderTools() {
     `</div>
     <div class="desc" style="margin-top:4px">Untick all for a closed-book task, so no
        candidate can look answers up — the design agent is told what's available.
-       These are OpenRouter server tools; there is no server-side code execution.</div>`;
+       These are OpenRouter server tools; there is no server-side code execution.</div>
+    ${webContaminationWarning(current)}`;
+}
+
+// Public benchmarks live online — questions AND answers — so a workflow that
+// searches the web can retrieve the benchmark itself. Said here, at the moment
+// the choice is made, not buried in docs.
+function webContaminationWarning(tools) {
+  const b = newMode === "benchmark"
+    && benchmarks.find(x => x.name === (document.getElementById("f-task") || {}).value);
+  const webbed = (tools || []).some(t => t.startsWith("web"));
+  if (!b || !b.aa_validated || !webbed) return "";
+  return `<div class="note" style="color:#fbbf24;margin-top:4px">⚠ web tools on an
+    AA-validated benchmark: this dataset is public online, answers included, so
+    search can retrieve the benchmark itself — scores are "workflow + internet",
+    inflated and not comparable to Artificial Analysis (AA runs closed-book).
+    Untick the web tools for AA-comparable numbers.</div>`;
 }
 
 // OpenRouter request plugins: not tools the model calls — each runs once per
@@ -474,6 +509,7 @@ function togglePlugin(name, on) {
 function toggleTool(name, on) {
   const base = (toolChoice || defaultTools()).slice();
   toolChoice = on ? [...new Set([...base, name])] : base.filter(t => t !== name);
+  renderTools();       // the contamination warning tracks the choice live
 }
 
 function defaultTools() {
@@ -736,6 +772,8 @@ async function startRun(ev) {
   if (modelChoice) body.overrides["models"] = modelChoice;
   if (designerChoice) body.overrides["designer.model"] = designerChoice;
   if (pluginChoice) body.overrides["call.plugins"] = pluginChoice;
+  if (researchChoice != null) body.overrides["designer.research"] = researchChoice;
+  if (researchModelChoice) body.overrides["designer.research_model"] = researchModelChoice;
   const res = await (await fetch("/api/runs", {
     method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body),
   })).json();

@@ -88,6 +88,15 @@ designer:
   model: anthropic/claude-opus-4.8
   rounds: 3                # design rounds; each one costs real money
   research: true           # web-research phase before designing, writing research_notes.md
+  # Research reads the web and writes a briefing; the designer reads only the
+  # briefing. A cheap model does the reading — running it on the designer model
+  # was observed burning ~$100 on one session before the caps below existed.
+  research_model: openai/gpt-5.6-luna
+  # Hard caps on agent turns per session: each turn re-bills a growing context,
+  # so uncapped sessions are uncapped bills. Research is a focused reading pass;
+  # design rounds need more room for write -> self-test -> revise loops.
+  research_max_turns: 40
+  max_turns: 120
   working_skills: false    # give the agent a working_skills/ dir it reads+writes across a run's rounds
   dev_sample_size: 5       # dev examples the agent may self-test against
   # Worst dev examples surfaced per candidate to the next round. 0 keeps dev

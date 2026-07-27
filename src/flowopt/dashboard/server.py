@@ -59,6 +59,16 @@ def _model_list(raw) -> str:
     return "[" + ",".join(f"'{i}'" for i in ids) + "]"
 
 
+def _flag(raw) -> str:
+    """A boolean the form sends as bool or text, normalized for the dotlist."""
+    value = str(raw).strip().lower()
+    if value in ("true", "1", "yes", "on"):
+        return "true"
+    if value in ("false", "0", "no", "off"):
+        return "false"
+    raise ValueError(raw)
+
+
 def _plugin_list(raw) -> str:
     """The form's request-plugin selection, validated against the registry.
 
@@ -77,6 +87,10 @@ def _plugin_list(raw) -> str:
 FORM_FIELDS = {
     "models": _model_list,
     "designer.model": _model_id,
+    "designer.research": _flag,
+    "designer.research_model": _model_id,
+    "designer.max_turns": int,
+    "designer.research_max_turns": int,
     "call.plugins": _plugin_list,
     "designer.rounds": int,
     "data.n_examples": int,
@@ -770,6 +784,9 @@ class Handler(BaseHTTPRequestHandler):
                                    "default_tools": list(base.runtime.tools),
                                    "plugins": sorted(PLUGIN_DEFS),
                                    "default_plugins": list(base.call.plugins),
+                                   "default_research": bool(base.designer.research),
+                                   "default_research_model": (base.designer.research_model
+                                                              or base.designer.model),
                                    "skills": skills,
                                    "default_working_skills": bool(base.designer.working_skills)})
             if path == "/api/models":

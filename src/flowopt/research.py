@@ -52,11 +52,15 @@ def run_research(cfg, benchmark: Benchmark, log=print, on_cost=None) -> str:
     catalog = ModelCatalog.from_config(cfg)
     menu = "\n".join(f"- {catalog.describe(model_id)}" for model_id in catalog.ids)
     (agent_dir / "proposer_config.json").write_text(json.dumps({
-        "model": cfg.designer.model,
+        # Research reads and summarizes; the cheap model does that fine, and the
+        # designer only ever sees the notes.
+        "model": cfg.designer.research_model or cfg.designer.model,
         "skills": [RESEARCH_SKILL],
         "allowed_tools": list(cfg.designer.allowed_tools),
+        "max_turns": int(cfg.designer.research_max_turns),
         "prompt": prompts.render("research_task", description=benchmark.description,
-                                 models=menu),
+                                 models=menu,
+                                 max_turns=int(cfg.designer.research_max_turns)),
     }))
 
     run_agent(agent_dir, log=log, on_cost=on_cost)

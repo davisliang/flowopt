@@ -209,6 +209,7 @@ def optimize(cfg, benchmark: Benchmark, evaluator: Evaluator = None, log=print,
                                   description=program.get("description", ""),
                                   code=program["code"],
                                   helpers=program.get("helpers", ""))
+            log(f"  scoring {candidate.name} on {len(benchmark.dev)} dev examples...")
             candidate.dev = evaluator.run(candidate.program, benchmark.dev)
             scored(candidate, "dev", candidate.dev)
             search.archive.append(candidate)
@@ -231,6 +232,7 @@ def optimize(cfg, benchmark: Benchmark, evaluator: Evaluator = None, log=print,
     for candidate in frontier:
         fresh = candidate.test is None
         if fresh:
+            log(f"  scoring {candidate.name} on {len(benchmark.test)} test examples...")
             candidate.test = evaluator.run(candidate.program, benchmark.test)
             scored(candidate, "test", candidate.test)
         # else: carried from the source run — the same held-out split was

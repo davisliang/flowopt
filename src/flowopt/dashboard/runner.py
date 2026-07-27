@@ -35,8 +35,14 @@ def main(run_id: str) -> int:
     log_file = open(directory / "log.txt", "a", buffering=1)
 
     def log(*parts) -> None:
-        """Write one line to the run's raw log, and to stdout for `journalctl`-style tailing."""
+        """Write one line to the run's raw log, and to stdout for `journalctl`-style tailing.
+
+        Every non-blank line is timestamped on arrival — the log is the run's
+        timeline, so "when" is part of the record, not something to reconstruct.
+        """
         line = " ".join(str(p) for p in parts)
+        if line.strip():
+            line = f"[{time.strftime('%H:%M:%S')}] {line}"
         log_file.write(line + "\n")
         print(line, flush=True)
 

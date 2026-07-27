@@ -231,6 +231,7 @@ def run_design_round(cfg, benchmark, round_num: int, context: str, log=print,
         "model": cfg.designer.model,
         "skills": skills,
         "allowed_tools": list(cfg.designer.allowed_tools),
+        "max_turns": int(cfg.designer.max_turns),
         "prompt": _round_prompt(cfg, benchmark, round_num, context, research_notes,
                                 guidance),
     }))

@@ -124,11 +124,15 @@ class DesignerConfig:
         model: The model the design agent runs on.
         rounds: How many design rounds to run. Each one costs real money.
         research: Whether to run the web-research phase before designing — a
-            Claude Agent SDK session that studies what works for this task online,
-            reads as many sources as it needs, and writes `research_notes.md`,
-            which is then handed to every design round. Set false to skip it (an
-            extra agent session; on by default so designs build on prior art, not
-            only what the model already carries in its weights).
+            Claude Agent SDK session that studies what works for this task
+            online and writes `research_notes.md`, which is then handed to
+            every design round. Set false to skip it (an extra agent session;
+            on by default so designs build on prior art, not only what the
+            model already carries in its weights).
+        research_model: The model the research session runs on. Research is
+            reading and summarizing — a briefing the designer consumes — so a
+            cheap model does it well; the expensive designer never sees the
+            sources, only the notes. Empty falls back to `model`.
         dev_sample_size: Legacy — the train split now serves this purpose (see
             `DataConfig.n_train`). Kept so run configs saved before the split
             existed still load; used only as the fallback sample size when a
@@ -154,10 +158,19 @@ class DesignerConfig:
         skills: Skill directories under `skills/` staged into the agent's
             `.claude/skills/` each round.
         allowed_tools: Tools the agent is permitted to use.
+        max_turns: Hard cap on one design round's agent turns. The agent bills
+            per turn on a growing context, so an uncapped session is an uncapped
+            bill — one research session was observed at 584 tool calls.
+        research_max_turns: Same cap for the research phase, tighter — reading
+            a dozen sources fits comfortably; a model-comparison rabbit hole
+            does not.
     """
     model: str = "anthropic/claude-opus-4.8"
     rounds: int = 3
     research: bool = True
+    research_model: str = "openai/gpt-5.6-luna"
+    max_turns: int = 120
+    research_max_turns: int = 40
     working_skills: bool = False
     dev_sample_size: int = 5
     failures_shown: int = 0
