@@ -18,14 +18,30 @@ rewritten.
 
 ## The notation
 
-Steps in execution order, separated by `→`. Each step is a model letter plus
-modifiers. Lowercase words are non-model operations.
+Steps in execution order, separated by `→`. Each step is a short model name plus
+modifiers. Lowercase single words are non-model operations.
 
 ```
-models      one capital letter per pool model, assigned cheapest -> most
-            expensive; with the default pool: H = claude-haiku-4.5,
-            L = gpt-5.6-luna, T = gpt-5.6-terra, S = claude-sonnet-5,
-            O = claude-opus-4.8, G = gpt-5.6-sol
+models      the model's SHORT NAME — the distinctive tail of its id, unique
+            within the pool. For the default pool:
+              v4-flash   deepseek/deepseek-v4-flash
+              v4-pro     deepseek/deepseek-v4-pro
+              kimi       moonshotai/kimi-k3
+              glm        z-ai/glm-5.2
+              muse       meta/muse-spark-1.1
+              luna       openai/gpt-5.6-luna        luna-pro    its pro serving
+              terra      openai/gpt-5.6-terra       terra-pro   its pro serving
+              sol        openai/gpt-5.6-sol         sol-pro     its pro serving
+              opus       anthropic/claude-opus-5
+              sonnet     anthropic/claude-sonnet-5
+              gem-3.1-pro    google/gemini-3.1-pro-preview
+              gem-3.5-flash  google/gemini-3.5-flash
+              gem-3.6-flash  google/gemini-3.6-flash
+              gem-3.5-lite   google/gemini-3.5-flash-lite
+            A model outside this table gets the shortest id-tail that is unique
+            in the run's pool. Never a bare letter — with 17-model pools the
+            letters collide and the names stop being readable — and never the
+            full provider path, which is noise.
 modifiers   ^  high effort           ~  medium effort
             #  web search            ×N N samples of that step
 ops         vote  pick  first  stop  skip        (lowercase = no model call)
@@ -38,9 +54,9 @@ sugar       ?X  ==  {self: skip|X}   run X only if the previous step is unsure
 `{decider: A|B}` — whatever decides which arm runs goes before the colon:
 
 ```
-{re: S#|H}        a regex over the INPUT picks           (cannot see the answer)
-{self: stop|S^}   the previous step's own verdict picks  (only as good as that step)
-{S: O^|H}         a Sonnet classifier picks
+{re: sonnet#|v4-flash}       a regex over the INPUT picks     (cannot see the answer)
+{self: stop|sonnet^}         the previous step's own verdict  (only as good as that step)
+{glm: opus^|v4-flash}        a GLM classifier picks
 ```
 
 This is the field most worth making explicit. A branch is only as good as its
@@ -51,14 +67,15 @@ explains the result.
 ## Full identifier: `task/notation@vN`
 
 The notation alone is not unique. It deliberately omits the prompt, so two
-programs with the same shape and different prompts collide — and `H→S` designed
-for `ifeval` is a different program from `H→S` designed for `mmlu_pro`. Qualify it:
+programs with the same shape and different prompts collide — and
+`v4-flash→sonnet` designed for `ifeval` is a different program from the same
+shape designed for `mmlu_pro`. Qualify it:
 
 ```
-ifeval/H→S@v1                     first H→S built for ifeval
-ifeval/H→S@v2                     same structure, different audit prompt
-mmlu_pro/S×5→vote@v1              unrelated to anything above
-ifeval/H→H→{self: stop|S^}@v1
+ifeval/v4-flash→sonnet@v1               first flash-draft/sonnet-audit built for ifeval
+ifeval/v4-flash→sonnet@v2               same structure, different audit prompt
+mmlu_pro/sonnet×5→vote@v1               unrelated to anything above
+hle/v4-flash→v4-flash→{self: stop|sol^}@v1
 ```
 
 - **`task/`** — the benchmark task the program was designed for. Programs are
@@ -79,24 +96,24 @@ path. Keep candidate `.py` files named however you like.
 ## Examples
 
 ```
-H                     one Haiku call
-H→S                   Haiku drafts, Sonnet audits and repairs
-H→H                   Haiku drafts, Haiku audits itself
-S→O^                  Sonnet drafts, Opus audits at high effort
-H→S^                  Haiku drafts, Sonnet audits at high effort
-H→H#                  Haiku drafts, Haiku audits using code execution
-S×5→vote              five Sonnet samples, majority vote
-H×3→vote→?O           vote, escalate to Opus when the vote is split
-H→{re: S#|H}          regex sends counting prompts to Sonnet+code, rest to Haiku
-H→H→{self: stop|S^}   Haiku self-audits; escalate to Sonnet only if unsure
-H→{S: S|stop}         a cheap Sonnet check decides whether a Sonnet audit runs
+v4-flash                             one deepseek-v4-flash call
+v4-flash→sonnet                      flash drafts, sonnet audits and repairs
+v4-flash→v4-flash                    flash drafts, flash audits itself
+sonnet→opus^                         sonnet drafts, opus audits at high effort
+v4-flash→sonnet#                     flash drafts, sonnet audits with web search
+sonnet×5→vote                        five sonnet samples, majority vote
+glm×3→vote→?sol                      vote, escalate to sol when the vote is split
+v4-flash→{re: sonnet#|v4-flash}      regex routes retrieval prompts to sonnet+web
+v4-flash→v4-flash→{self: stop|sol^}  flash self-audits; escalate to sol if unsure
+luna→{glm: terra|stop}               a cheap glm check decides if a terra audit runs
 ```
 
 ## Rules
 
 - **Execution order, always.** The name reads the way the program runs.
-- **One character per model.** Add letters to the legend if the model set grows;
-  do not spell model names out.
+- **One short name per model, from the table above.** Every model in a name must
+  be identifiable without a per-run legend; two workflows from different runs
+  should be comparable by name alone.
 - **Length tracks complexity.** `H` is one character because it is one call. If a
   name is long, the program is complicated, and that should be visible.
 - **Do not encode intent.** No `smart`, `robust`, `cheap`, `best`, `crossmodel`,
@@ -111,6 +128,7 @@ H→{S: S|stop}         a cheap Sonnet check decides whether a Sonnet audit runs
 
 Sorting a results table by these names groups programs that behave alike, because
 the name is a description of behaviour. In the run this came from, reading only the
-last step of each name gave the entire result: pipelines ending in `S` or `O` scored
-0.957, those ending in `H` scored at or below the no-audit baseline, and everything
-containing `#` was worse still. No commentary needed.
+last step of each name gave the entire result: pipelines ending in `sonnet` or
+`opus` scored 0.957, those ending in the cheap drafting model scored at or below
+the no-audit baseline, and everything containing `#` was worse still. No
+commentary needed.

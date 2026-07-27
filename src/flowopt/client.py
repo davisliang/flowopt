@@ -135,7 +135,17 @@ class ModelClient:
             set when the output ceiling cut the reply off.
         """
         request = self._request(model, prompt, system, tools, effort, schema)
-        response = self.client.chat.completions.create(**request)
+        try:
+            response = self.client.chat.completions.create(**request)
+        except openai.BadRequestError as error:
+            # Some endpoints cannot have reasoning disabled (Gemini flash-lite,
+            # pro serving aliases) and 400 on our default {"effort": "none"}.
+            # Drop the reasoning field and let the endpoint run its mandatory
+            # default — the billed cost reports what it actually spent.
+            if "reasoning" in str(error).lower() and request["extra_body"].pop("reasoning", None):
+                response = self.client.chat.completions.create(**request)
+            else:
+                raise
 
         choice = response.choices[0]
         usage, cost = _usage_of(response)

@@ -111,6 +111,29 @@ def test_the_legacy_web_name_and_request_plugins(cfg, catalog):
     assert sdk.request["extra_body"]["plugins"] == [{"id": "response-healing"}]
 
 
+def test_mandatory_reasoning_endpoints_get_a_retry_without_the_field(cfg, catalog):
+    # gemini-3.5-flash-lite 400s on {"effort": "none"} — the call must survive
+    # by dropping the reasoning field, not fail the example
+    import httpx
+    import openai as openai_sdk
+
+    class MandatoryReasoning(FakeOpenRouter):
+        def create(self, **request):
+            self.request = request
+            if "reasoning" in request.get("extra_body", {}):
+                raise openai_sdk.BadRequestError(
+                    "Reasoning is mandatory for this endpoint and cannot be disabled.",
+                    response=httpx.Response(400, request=httpx.Request("POST", "http://x")),
+                    body=None)
+            return self._response
+
+    sdk = MandatoryReasoning(_or_response(text="ok"))
+    response = ModelClient(catalog, cfg.call, client=sdk).call(
+        "google/gemini-3.5-flash-lite", "q")
+    assert response.text == "ok"
+    assert "reasoning" not in sdk.request["extra_body"]     # retried without it
+
+
 def test_effort_passes_through_and_length_is_truncated(cfg, catalog):
     sdk = FakeOpenRouter(_or_response(finish="length"))
     response = ModelClient(catalog, cfg.call, client=sdk).call(
