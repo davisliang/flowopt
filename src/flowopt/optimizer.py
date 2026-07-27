@@ -192,7 +192,7 @@ def optimize(cfg, benchmark: Benchmark, evaluator: Evaluator = None, log=print,
         emit({"event": "round_start", "round": round_num, "rounds": cfg.designer.rounds})
         context = designer.summarize_archive(          # empty on round 1
             search.archive, cfg.designer.failures_shown, cfg.designer.dominated_shown)
-        report_cost = lambda usd, turns: emit(
+        report_cost = lambda usd, turns, round_num=round_num: emit(
             {"event": "agent_cost", "round": round_num, "usd": usd, "turns": turns})
         for program in designer.run_design_round(cfg, benchmark, round_num, context,
                                                  log=log, on_cost=report_cost,

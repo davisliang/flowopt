@@ -75,7 +75,8 @@ def _cached_fetch(name: str, fetch, refresh: bool = False) -> dict:
     except (urllib.error.URLError, OSError, ValueError) as error:
         if path.exists():                      # stale beats nothing
             return json.loads(path.read_text())
-        raise RuntimeError(f"could not fetch {name} and no cached copy exists: {error}")
+        raise RuntimeError(f"could not fetch {name} and no cached copy exists: "
+                           f"{error}") from error
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data))
     return data

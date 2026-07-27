@@ -83,8 +83,8 @@ class ModelCatalog:
                 raise ValueError(f"model '{model_id}' is not on OpenRouter — "
                                  f"check the id against https://openrouter.ai/models")
             pricing = record.get("pricing", {})
-            per_m = lambda key: (float(pricing[key]) * 1_000_000
-                                 if pricing.get(key) not in (None, "") else None)
+            per_m = lambda key, p=pricing: (float(p[key]) * 1_000_000
+                                            if p.get(key) not in (None, "") else None)
             specs.append(ModelSpec(
                 id=model_id,
                 price_in=per_m("prompt") or 0.0,

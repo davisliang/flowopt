@@ -24,5 +24,24 @@ artifacts = ["src/flowopt/dashboard/static/*"]
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.6.1",
     "pytest>=9.1.1",
+    "ruff>=0.16.0",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["runs", "benchmarks"]
+
+[tool.ruff.lint]
+# Correctness-focused: pyflakes, real-error pycodestyle classes, bugbear, and
+# error-class pylint. Deliberately no import sorting or formatting rules — the
+# codebase has its own style and a linter that churns it would get disabled.
+select = ["E4", "E7", "E9", "F", "B", "PLE"]
+# assigned lambdas are house style (per_m, breakpoint_text, norm)
+ignore = ["E731"]
+
+[tool.ruff.lint.per-file-ignores]
+# asserting "some exception" is the point of the config-rejection test
+"tests/*" = ["B017"]

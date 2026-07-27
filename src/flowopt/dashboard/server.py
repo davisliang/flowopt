@@ -637,8 +637,8 @@ def model_directory(refresh: bool = False) -> dict:
     models = []
     for model_id, record in openrouter.items():
         pricing = record.get("pricing", {})
-        per_m = lambda key: (float(pricing[key]) * 1_000_000
-                             if pricing.get(key) not in (None, "") else None)
+        per_m = lambda key, p=pricing: (float(p[key]) * 1_000_000
+                                        if p.get(key) not in (None, "") else None)
         models.append({
             "id": model_id,
             "name": record.get("name"),

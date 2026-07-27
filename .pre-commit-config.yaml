@@ -1,0 +1,20 @@
+# Pre-commit hooks: lint and the offline test suite (it runs in ~2s, so it
+# earns its place). Both run through uv, so the project's pinned versions apply
+# and no separate tool installs are needed.
+#
+#   uv run pre-commit install      # once per clone
+#   SKIP=pytest git commit ...     # escape hatch when committing known-red WIP
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff check
+        entry: uv run ruff check --force-exclude
+        language: system
+        types: [python]
+      - id: pytest
+        name: pytest (offline suite)
+        entry: uv run pytest -q
+        language: system
+        pass_filenames: false
+        types_or: [python, yaml, json]

@@ -65,7 +65,7 @@ def main() -> None:
             "test_accuracy": held.accuracy, "test_cost": held.cost, "test_n": len(held_out),
             "test_answers": [{"prompt_hash": item["prompt_hash"], "answer": record["answer"],
                               "score": record["score"], "error": record["error"]}
-                             for item, record in zip(held_out, held.records)],
+                             for item, record in zip(held_out, held.records, strict=True)],
         })
         print(f"  {candidate.name:26} dev {candidate.dev.accuracy:.3f} | "
               f"internal {internal.accuracy:.3f} | TEST {held.accuracy:.3f}  "

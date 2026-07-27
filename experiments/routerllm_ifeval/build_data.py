@@ -7,7 +7,12 @@ Writes ifeval_train.jsonl (100) and ifeval_test.jsonl (46). Exits non-zero if
 the grader disagrees with a single recorded label — the whole comparison rests
 on those two scores meaning the same thing, so it is checked, not assumed.
 """
-import argparse, json, pathlib, random, statistics, sys
+import argparse
+import json
+import pathlib
+import random
+import statistics
+import sys
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--out", required=True)
@@ -19,12 +24,13 @@ ap.add_argument("--n-train", type=int, default=100)
 ap.add_argument("--seed", type=int, default=0)
 args = ap.parse_args()
 
-OUT = pathlib.Path(args.out); OUT.mkdir(parents=True, exist_ok=True)
+OUT = pathlib.Path(args.out)
+OUT.mkdir(parents=True, exist_ok=True)
 RL, PAIRED = pathlib.Path(args.routerllm), pathlib.Path(args.paired)
 
 # ---- test: the <=100/task holdout14 subset the prior model runs used ---------
 subset = set(json.loads((RL / "router_runs/holdout14_subset_hashes.json").read_text()))
-holdout = [json.loads(l) for l in open(RL / "router_runs/holdout14_examples.jsonl")]
+holdout = [json.loads(line) for line in open(RL / "router_runs/holdout14_examples.jsonl")]
 test_hashes = {r["prompt_hash"] for r in holdout
                if r["task"] == "ifeval" and r["prompt_hash"] in subset}
 
@@ -80,7 +86,7 @@ def disagreements(rows):
 # run to run. grader.py pins the seed; these numbers are measured under it.
 bad_te, n_te = disagreements(test)
 bad_tr, n_tr = disagreements(train)
-print(f"\ngrader vs recorded labels:")
+print("\ngrader vs recorded labels:")
 print(f"  test  {n_te - bad_te}/{n_te} agree   <- reported; must be exact")
 print(f"  train {n_tr - bad_tr}/{n_tr} agree   <- selection only; langdetect-sensitive")
 if bad_te:

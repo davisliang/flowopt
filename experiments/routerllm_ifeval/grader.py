@@ -55,4 +55,4 @@ def per_constraint(prediction, item):
         out = test_instruction_following_strict(inp, str(prediction))
     except Exception:
         return {i: False for i in doc["instruction_id_list"]}
-    return dict(zip(doc["instruction_id_list"], out.follow_instruction_list))
+    return dict(zip(doc["instruction_id_list"], out.follow_instruction_list, strict=True))
